@@ -13,7 +13,64 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="ButtonShot_2" native="true">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>10</y>
+      <width>191</width>
+      <height>371</height>
+     </rect>
+    </property>
+    <widget class="QPushButton" name="ButtonShot">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>40</y>
+       <width>99</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>拍照识别</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="ButtonOpen">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>100</y>
+       <width>99</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>打开相机</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="Preview" native="true">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>10</y>
+      <width>541</width>
+      <height>371</height>
+     </rect>
+    </property>
+    <widget class="QGraphicsView" name="graphicsView">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>521</width>
+       <height>351</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+  </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
