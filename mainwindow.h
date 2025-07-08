@@ -38,6 +38,8 @@ private slots:
 
     void on_ButtonSave_clicked();
 
+    void on_ButtonDetect_clicked();
+
 private:
     Ui::MainWindow *ui;
     // 相机初始化 构造

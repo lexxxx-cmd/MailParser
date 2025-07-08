@@ -320,3 +320,9 @@ void MainWindow::on_ButtonSave_clicked()
     }
 }
 
+
+void MainWindow::on_ButtonDetect_clicked()
+{
+
+}
+
