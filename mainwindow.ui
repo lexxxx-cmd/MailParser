@@ -6,69 +6,73 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1198</width>
+    <height>712</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="ButtonShot_2" native="true">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>10</y>
-      <width>191</width>
-      <height>371</height>
-     </rect>
-    </property>
-    <widget class="QPushButton" name="ButtonShot">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>40</y>
-       <width>99</width>
-       <height>28</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>拍照识别</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="ButtonOpen">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>100</y>
-       <width>99</width>
-       <height>28</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>打开相机</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="Preview" native="true">
+   <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>10</y>
-      <width>541</width>
-      <height>371</height>
+      <y>40</y>
+      <width>640</width>
+      <height>480</height>
      </rect>
     </property>
-    <widget class="QGraphicsView" name="graphicsView">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>521</width>
-       <height>351</height>
-      </rect>
-     </property>
-    </widget>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>40</y>
+      <width>101</width>
+      <height>170</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QPushButton" name="ButtonShot">
+       <property name="text">
+        <string>单次采集</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonOpen">
+       <property name="text">
+        <string>打开相机</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonStop">
+       <property name="text">
+        <string>停止采集</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Property">
+       <property name="text">
+        <string>属性</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonSave">
+       <property name="text">
+        <string>保存图像</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -76,7 +80,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1198</width>
      <height>24</height>
     </rect>
    </property>
