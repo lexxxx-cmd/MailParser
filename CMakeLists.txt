@@ -13,12 +13,14 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 
 set(TS_FILES MailParser_en_AS.ts)
-
+set(UI_SOURCES
+        UI/mainwindow.cpp
+        UI/mainwindow.h
+        UI/mainwindow.ui
+)
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+        ${UI_SOURCES}
         ${TS_FILES}
 )
 
