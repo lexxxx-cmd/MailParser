@@ -1,6 +1,7 @@
 #ifndef _MV_IMAGEC_H
 #define _MV_IMAGEC_H
 
+#include <qwindowdefs_win.h>
 #ifdef MVGIGE_EXPORTS
 #define MVGIGE_API __declspec(dllexport)
 #else
