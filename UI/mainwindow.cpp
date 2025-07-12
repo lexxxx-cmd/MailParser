@@ -36,7 +36,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_ButtonShot_clicked()
 {
-
+    m_Camera->grabOnce();
     ui->ButtonShot->setEnabled(true);
     ui->ButtonOpen->setEnabled(true);
     ui->ButtonStop->setEnabled(false);
@@ -60,6 +60,8 @@ void MainWindow::on_ButtonOpen_clicked()
 
 void MainWindow::on_ButtonStop_clicked()
 {
+    m_Camera->stopGrabbing();
+
     ui->ButtonShot->setEnabled(true);
     ui->ButtonOpen->setEnabled(true);
     ui->ButtonStop->setEnabled(false);
@@ -75,7 +77,24 @@ void MainWindow::on_Property_clicked()
 
 
 void MainWindow::on_ButtonSave_clicked()
-{  
+{
+    bool t_Run = false;
+    if(m_Camera->isRun()) {
+        t_Run = true;
+        on_ButtonStop_clicked();
+    }
+    QString t_FileName = QFileDialog::getSaveFileName(this, tr("保存图像"),
+                                                      "untitled.bmp",
+                                                      tr("Images (*.png *.xpm *.jpg *.bmp *.tif)"));
+    if (!t_FileName.isEmpty()) {
+        char t_File[100];
+        sprintf(t_File,"%s",t_FileName.toStdString().c_str());
+        m_Camera->saveCurImg(t_File);
+    }
+    if(t_Run) {
+        on_ButtonOpen_clicked();
+    }
+
 }
 
 
@@ -94,3 +113,5 @@ void MainWindow::onErrorShow(const QString& error)
     QMessageBox::StandardButton t_Re = QMessageBox::warning(this,"Warning: ",error,QMessageBox::Yes);
     if (t_Re == QMessageBox::Yes) return;
 }
+
+

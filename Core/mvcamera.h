@@ -12,18 +12,22 @@ class MVCamera :public QObject
 public:
     explicit MVCamera(QObject *parent = nullptr);
     ~MVCamera();
-    // 主界面接口：属性页
+    // 主界面接口：属性页 √
     void showProperty();
-    // 主界面接口：单次采集
+    // 主界面接口：单次采集 √
     void grabOnce();
-    // 主界面接口：连续采集
+    // 主界面接口：连续采集 √
     void grabStrat();
-    // 主界面接口：停止采集
-    void detectCurOnce();
+    // 主界面接口：停止采集 √
+    void stopGrabbing();
     // 主界面接口：识别
-    void saveCurImg();
+    void detectCurOnce();
     // 主界面接口：保存图像
+    void saveCurImg(LPCSTR file);
+
     int convert2Qimg(MV_IMAGE_INFO* pInfo);
+    // Get方法
+    bool isRun() const;
 signals:
     void imageReady(const QImage& image);
     void errorOccur(const QString& error);

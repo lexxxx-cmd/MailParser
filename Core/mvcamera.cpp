@@ -1,5 +1,6 @@
 #include "mvcamera.h"
 #include <QImage>
+#include <QFileDialog>
 
 MVCamera::MVCamera(QObject *parent):QObject(parent),m_nCam(0),m_hCam(NULL),m_hPropDlg(NULL),m_hImg(NULL) {
     initial();
@@ -128,4 +129,45 @@ void MVCamera::grabStrat() {
         // 如果相机在采集模式，属性页的某些属性不能改变
         MVCamProptySheetCameraRun(m_hPropDlg, MVCameraRun_ON);
     }
+}
+
+void MVCamera::stopGrabbing() {
+    MVSTATUS_CODES r = MVStopGrab(m_hCam);
+    if (r == MVST_SUCCESS){
+        m_bRun = FALSE;
+        if (m_hPropDlg != NULL)
+        {
+            //2 MVCamProptySheet.h
+            MVCamProptySheetCameraRun(m_hPropDlg, MVCameraRun_OFF);
+            //qDebug("关闭相机成功");
+        }
+    }else{
+        emit errorOccur("停止相机失败！");
+    }
+}
+
+void MVCamera::grabOnce() {
+    MVSTATUS_CODES r = MVSingleGrab(m_hCam,m_hImg,500); // TODO 通过配置改变曝光时间
+    if (r == MVST_SUCCESS) {
+        QImage t_Image = img2QImage(m_hImg);
+        emit imageReady(t_Image);
+    }else {
+        //QImage t_Image = QImage();
+        emit errorOccur("单次采集失败！");
+    }
+}
+
+void MVCamera::saveCurImg(LPCSTR file) {
+
+    HANDLE t_Img = MVImageCreate(MVImageGetWidth(m_hImg), MVImageGetHeight(m_hImg), MVImageGetBPP(m_hImg));
+    memcpy(MVImageGetBits(t_Img), MVImageGetBits(m_hImg), MVImageGetPitch(t_Img) * MVImageGetHeight(t_Img));
+
+    MVImageSave(t_Img,file);
+
+    MVImageDestroy(t_Img);
+
+}
+
+bool MVCamera::isRun() const {
+    return m_bRun;
 }
