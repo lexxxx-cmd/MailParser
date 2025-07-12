@@ -13,20 +13,29 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 
 set(TS_FILES MailParser_en_AS.ts)
-
+set(UI_SOURCES
+        UI/mainwindow.cpp
+        UI/mainwindow.h
+        UI/mainwindow.ui
+)
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+        ${UI_SOURCES}
         ${TS_FILES}
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    find_package(Qt6 REQUIRED COMPONENTS Core Widgets Quick)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
     qt_add_executable(MailParser
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        Core/Core.pri Thridparty/Thridparty.pri
+        Core/mvcamera.h Core/mvcamera.cpp
+
+
+
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET MailParser APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -49,8 +58,18 @@ else()
 
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
+include_directories(${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/include)
 
-target_link_libraries(MailParser PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(MailParser PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    # microvision
+    ${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/lib/MVCamProptySheet.lib
+    ${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/lib/MVGigE.lib
+    ${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/lib/MVTickDlg.lib
+    )
+target_link_libraries(MailParser PRIVATE Qt6::Core Qt6::Widgets Qt6::Quick)
+target_link_libraries(MailParser PRIVATE Qt6::Core)
+
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
