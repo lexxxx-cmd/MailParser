@@ -35,7 +35,8 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::on_ButtonShot_clicked()
-{   
+{
+
     ui->ButtonShot->setEnabled(true);
     ui->ButtonOpen->setEnabled(true);
     ui->ButtonStop->setEnabled(false);
@@ -45,7 +46,8 @@ void MainWindow::on_ButtonShot_clicked()
 
 
 void MainWindow::on_ButtonOpen_clicked()
-{  
+{
+    m_Camera->grabStrat();
     ui->ButtonShot->setEnabled(false);
     ui->ButtonOpen->setEnabled(false);
     ui->ButtonStop->setEnabled(true);

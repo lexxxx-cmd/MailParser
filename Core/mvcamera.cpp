@@ -1,4 +1,5 @@
 #include "mvcamera.h"
+#include <QImage>
 
 MVCamera::MVCamera(QObject *parent):QObject(parent),m_nCam(0),m_hCam(NULL),m_hPropDlg(NULL),m_hImg(NULL) {
     initial();
@@ -71,5 +72,60 @@ void MVCamera::showProperty() {
     {
         //2 MVCamProptySheet.h
         MVCamProptySheetShow(m_hPropDlg, SW_SHOW);
+    }
+}
+
+QImage img2QImage(HANDLE hImg)
+{
+    int w = MVImageGetWidth(hImg);
+    int h = MVImageGetHeight(hImg);
+    int bpp = MVImageGetBPP(hImg);
+    int pitch = MVImageGetPitch(hImg);
+    unsigned char *pImgData = (unsigned char *)MVImageGetBits(hImg);
+
+    if (bpp == 8)
+    {
+        uchar *pSrc = pImgData;
+        QImage image(pSrc, w,h, pitch, QImage::Format_Indexed8);
+        image.setColorCount(256);
+        for (int i = 0; i < 256; i++)
+        {
+            image.setColor(i, qRgb(i, i, i));
+        }
+        return image;
+    }
+    else if (bpp == 24)
+    {
+        const uchar *pSrc = (const uchar*)pImgData;
+        QImage image(pSrc, w,h, pitch, QImage::Format_RGB888);
+        return image.rgbSwapped();
+    }
+    else
+    {
+        return QImage();
+    }
+}
+
+int MVCamera::convert2Qimg(MV_IMAGE_INFO* pInfo)
+{
+    MVInfo2Image(m_hCam,pInfo,m_hImg);
+    QImage t_Image = img2QImage(m_hImg);
+    emit imageReady(t_Image);
+    return 0;
+}
+int __stdcall StreamCB(MV_IMAGE_INFO* pInfo, ULONG_PTR nUserVal)
+{
+    MVCamera* pCam = (MVCamera*)nUserVal;
+    return (pCam->convert2Qimg(pInfo));
+}
+
+void MVCamera::grabStrat() {
+    MVStartGrab(m_hCam, StreamCB, (ULONG_PTR)this);
+    m_bRun = TRUE;
+    if (m_hPropDlg != NULL)
+    {
+        //2 MVCamProptySheet.h
+        // 如果相机在采集模式，属性页的某些属性不能改变
+        MVCamProptySheetCameraRun(m_hPropDlg, MVCameraRun_ON);
     }
 }

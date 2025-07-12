@@ -23,12 +23,14 @@ public:
     // 主界面接口：识别
     void saveCurImg();
     // 主界面接口：保存图像
+    int convert2Qimg(MV_IMAGE_INFO* pInfo);
 signals:
     void imageReady(const QImage& image);
     void errorOccur(const QString& error);
 private:
     void initial();
     void release();
+
     // 相机数目
     int m_nCam;
     // 当前相机句柄
@@ -37,6 +39,8 @@ private:
     HANDLE m_hPropDlg;
     // 当前相机图像数据
     HANDLE m_hImg;
+    // 当前相机是否运行flag
+    bool m_bRun;
 };
 
 #endif // MVCAMERA_H
