@@ -11,6 +11,28 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
+# 设置OpenCV路径
+set(OpenCV_DIR "${CMAKE_SOURCE_DIR}/Thridparty/OpenCV/opencv/build")
+find_package(OpenCV REQUIRED)
+
+
+# 设置 TensorRT 安装路径
+set(TENSORRT_ROOT "E:/TensorRT/TensorRT-10.12.0.36" CACHE PATH "TensorRT installation directory")
+
+# 设置 CUDA 安装路径（如果使用 CUDA）
+set(CUDA_TOOLKIT_ROOT_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.1" CACHE PATH "CUDA installation directory")
+list(APPEND ALL_INCLUDE_DIRS
+        ${OpenCV_INCLUDE_DIRS}
+        ${TENSORRT_ROOT}/include
+        ${CUDA_TOOLKIT_ROOT_DIR}/include
+)
+list(APPEND ALL_LIBS
+        ${OpenCV_LIBRARIES}
+        nvinfer_10.lib
+        nvinfer_plugin_10.lib
+        nvinfer_vc_plugin_10.lib
+        nvonnxparser_10.lib
+)
 
 set(TS_FILES MailParser_en_AS.ts)
 set(UI_SOURCES
@@ -32,6 +54,9 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         Core/mvcamera.h Core/mvcamera.cpp
+        Core/yolo.h Core/yolo.cpp
+        Core/common.hpp
+        Core/filesystem.hpp
 
 
 
@@ -58,15 +83,22 @@ else()
 
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
-include_directories(${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/include)
-
+include_directories(${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/include
+                    ${ALL_INCLUDE_DIRS})
+target_link_directories(
+                        MailParser
+                        PUBLIC
+                        ${TENSORRT_ROOT}/lib
+                        ${CUDA_TOOLKIT_ROOT_DIR}/lib/x64
+                )
 target_link_libraries(MailParser PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     # microvision
     ${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/lib/MVCamProptySheet.lib
     ${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/lib/MVGigE.lib
     ${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/lib/MVTickDlg.lib
-    )
+    ${ALL_LIBS}
+)
 target_link_libraries(MailParser PRIVATE Qt6::Core Qt6::Widgets Qt6::Quick)
 target_link_libraries(MailParser PRIVATE Qt6::Core)
 

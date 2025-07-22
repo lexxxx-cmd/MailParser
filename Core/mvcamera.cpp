@@ -109,7 +109,7 @@ QImage img2QImage(HANDLE hImg)
 
 int MVCamera::convert2Qimg(MV_IMAGE_INFO* pInfo)
 {
-    MVInfo2Image(m_hCam,pInfo,m_hImg);
+    MVInfo2Image(m_hCam,pInfo,(MVImage *)m_hImg);
     QImage t_Image = img2QImage(m_hImg);
     emit imageReady(t_Image);
     return 0;

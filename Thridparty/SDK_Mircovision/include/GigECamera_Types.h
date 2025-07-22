@@ -104,45 +104,45 @@
 
 
 /* 
-*  \brief »Øµ÷º¯ÊıµÃµ½µÄÊı¾İµÄ½á¹¹
+*  \brief å›è°ƒå‡½æ•°å¾—åˆ°çš„æ•°æ®çš„ç»“æ„
 */
 typedef struct _IMAGE_INFO
 {
-	uint64_t	nTimeStamp;		///< Ê±¼ä´Á£¬²É¼¯µ½Í¼ÏñµÄÊ±¿Ì£¬¾«¶ÈÎª0.01us
-	USHORT		nBlockId;		///< Ö¡ºÅ£¬´Ó¿ªÊ¼²É¼¯¿ªÊ¼¼ÆÊı
-	UCHAR		*pImageBuffer;	///< Í¼ÏñÖ¸Õë£¬¼´Ö¸Ïò(0,0)ÏñËØËùÔÚÄÚ´æÎ»ÖÃµÄÖ¸Õë£¬Í¨¹ı¸ÃÖ¸Õë¿ÉÒÔ·ÃÎÊÕû¸öÍ¼Ïñ
-	ULONG		nImageSizeAcq;	///< ²É¼¯µ½µÄÍ¼Ïñ´óĞ¡[×Ö½Ú]
-	UCHAR		nMissingPackets;///< ´«Êä¹ı³ÌÖĞ¶ªµôµÄ°üÊıÁ¿
-	uint64_t	nPixelType;		///< Í¼Ïñ¸ñÊ½
-	uint32_t	nSizeX;			///< Í¼Ïñ¿í¶È
-	uint32_t	nSizeY;         ///< Í¼Ïñ¸ß¶È
-	uint32_t	nOffsetX;		///< Í¼ÏñË®Æ½×ø±ê
-	uint32_t	nOffsetY;       ///< Í¼Ïñ´¹Ö±×ø±ê
+	uint64_t	nTimeStamp;		///< æ—¶é—´æˆ³ï¼Œé‡‡é›†åˆ°å›¾åƒçš„æ—¶åˆ»ï¼Œç²¾åº¦ä¸º0.01us
+	USHORT		nBlockId;		///< å¸§å·ï¼Œä»å¼€å§‹é‡‡é›†å¼€å§‹è®¡æ•°
+	UCHAR		*pImageBuffer;	///< å›¾åƒæŒ‡é’ˆï¼Œå³æŒ‡å‘(0,0)åƒç´ æ‰€åœ¨å†…å­˜ä½ç½®çš„æŒ‡é’ˆï¼Œé€šè¿‡è¯¥æŒ‡é’ˆå¯ä»¥è®¿é—®æ•´ä¸ªå›¾åƒ
+	ULONG		nImageSizeAcq;	///< é‡‡é›†åˆ°çš„å›¾åƒå¤§å°[å­—èŠ‚]
+	UCHAR		nMissingPackets;///< ä¼ è¾“è¿‡ç¨‹ä¸­ä¸¢æ‰çš„åŒ…æ•°é‡
+	uint64_t	nPixelType;		///< å›¾åƒæ ¼å¼
+	uint32_t	nSizeX;			///< å›¾åƒå®½åº¦
+	uint32_t	nSizeY;         ///< å›¾åƒé«˜åº¦
+	uint32_t	nOffsetX;		///< å›¾åƒæ°´å¹³åæ ‡
+	uint32_t	nOffsetY;       ///< å›¾åƒå‚ç›´åæ ‡
 } MV_IMAGE_INFO, * pMV_IMAGE_INFO ;
 
 /* 
-*  \brief BayerÑÕÉ«Ä£Ê½
+*  \brief Bayeré¢œè‰²æ¨¡å¼
 */
 typedef enum {	
-	BayerRG,	//< ÑÕÉ«Ä£Ê½RGGB
-	BayerBG,	//< ÑÕÉ«Ä£Ê½BGGR
-	BayerGR,	//< ÑÕÉ«Ä£Ê½GRBG
-	BayerGB,	//< ÑÕÉ«Ä£Ê½GBRG
-	BayerGRW,	//< ÑÕÉ«Ä£Ê½GRW
+	BayerRG,	//< é¢œè‰²æ¨¡å¼RGGB
+	BayerBG,	//< é¢œè‰²æ¨¡å¼BGGR
+	BayerGR,	//< é¢œè‰²æ¨¡å¼GRBG
+	BayerGB,	//< é¢œè‰²æ¨¡å¼GBRG
+	BayerGRW,	//< é¢œè‰²æ¨¡å¼GRW
 	BayerInvalid
 } MV_BAYER_MODE;
 
 /* 
-*  \brief Í¼ÏñÏñËØ¸ñÊ½
+*  \brief å›¾åƒåƒç´ æ ¼å¼
 */
 typedef enum {	
-	PixelFormat_Mono8 = 0x01080001,	//!<8Bit»Ò¶È
-	PixelFormat_BayerBG8=0x0108000B,	//!<8Bit BayerÍ¼,ÑÕÉ«Ä£Ê½ÎªBGGR
-	PixelFormat_BayerRG8=0x01080009,	//!<8Bit BayerÍ¼,ÑÕÉ«Ä£Ê½ÎªRGGB
-	PixelFormat_BayerGB8=0x0108000A,	//!<8Bit BayerÍ¼,ÑÕÉ«Ä£Ê½ÎªGBRG
-	PixelFormat_BayerGR8=0x01080008,	//!<8Bit BayerÍ¼,ÑÕÉ«Ä£Ê½ÎªGRBG
-	PixelFormat_BayerGRW8=0x0108000C,	//!<8Bit BayerÍ¼,ÑÕÉ«Ä£Ê½ÎªGRW8
-	PixelFormat_Mono16=0x01100007,		//!<16Bit»Ò¶È
+	PixelFormat_Mono8 = 0x01080001,	//!<8Bitç°åº¦
+	PixelFormat_BayerBG8=0x0108000B,	//!<8Bit Bayerå›¾,é¢œè‰²æ¨¡å¼ä¸ºBGGR
+	PixelFormat_BayerRG8=0x01080009,	//!<8Bit Bayerå›¾,é¢œè‰²æ¨¡å¼ä¸ºRGGB
+	PixelFormat_BayerGB8=0x0108000A,	//!<8Bit Bayerå›¾,é¢œè‰²æ¨¡å¼ä¸ºGBRG
+	PixelFormat_BayerGR8=0x01080008,	//!<8Bit Bayerå›¾,é¢œè‰²æ¨¡å¼ä¸ºGRBG
+	PixelFormat_BayerGRW8=0x0108000C,	//!<8Bit Bayerå›¾,é¢œè‰²æ¨¡å¼ä¸ºGRW8
+	PixelFormat_Mono16=0x01100007,		//!<16Bitç°åº¦
 	PixelFormat_BayerGR10			=0x0110000C	,//BayererGR10
 	PixelFormat_BayerRG10			=0x0110000D	,//BayererRG10
 	PixelFormat_BayerGB10			=0x0110000E	,//BayererGB10
@@ -159,96 +159,96 @@ typedef enum {
 	PixelFormat_BayerRG12_PACKED		=0x010C002B	,//BayererRG12Packed
 	PixelFormat_BayerGB12_PACKED		=0x010C002C	,//BayererGB12Packed
 	PixelFormat_BayerBG12_PACKED		=0x010C002D	,//BayererBG12Packed
-	PixelFormat_BayerGR16=0x0110002E,	//!<16Bit BayerÍ¼,ÑÕÉ«Ä£Ê½ÎªGR
-	PixelFormat_BayerRG16=0x0110002F,	//!<16Bit BayerÍ¼,ÑÕÉ«Ä£Ê½ÎªRG
-	PixelFormat_BayerGB16=0x01100030,	//!<16Bit BayerÍ¼,ÑÕÉ«Ä£Ê½ÎªGB
-	PixelFormat_BayerBG16=0x01100031	//!<16Bit BayerÍ¼,ÑÕÉ«Ä£Ê½ÎªBG
+	PixelFormat_BayerGR16=0x0110002E,	//!<16Bit Bayerå›¾,é¢œè‰²æ¨¡å¼ä¸ºGR
+	PixelFormat_BayerRG16=0x0110002F,	//!<16Bit Bayerå›¾,é¢œè‰²æ¨¡å¼ä¸ºRG
+	PixelFormat_BayerGB16=0x01100030,	//!<16Bit Bayerå›¾,é¢œè‰²æ¨¡å¼ä¸ºGB
+	PixelFormat_BayerBG16=0x01100031	//!<16Bit Bayerå›¾,é¢œè‰²æ¨¡å¼ä¸ºBG
 } MV_PixelFormatEnums;
 
 /* 
-*  \brief ´íÎó·µ»ØÖµÀàĞÍ
+*  \brief é”™è¯¯è¿”å›å€¼ç±»å‹
 */
 typedef enum  
 {
-	MVST_SUCCESS                = 0,      ///< Ã»ÓĞ´íÎó      
-	MVST_ERROR                  = -1001,  ///< Ò»°ã´íÎó
-	MVST_ERR_NOT_INITIALIZED    = -1002,  //!< Ã»ÓĞ³õÊ¼»¯
-	MVST_ERR_NOT_IMPLEMENTED    = -1003,  //!< Ã»ÓĞÊµÏÖ
-	MVST_ERR_RESOURCE_IN_USE    = -1004,  //!< ×ÊÔ´±»Õ¼ÓÃ
-	MVST_ACCESS_DENIED          = -1005,  ///< ÎŞ·¨·ÃÎÊ
-	MVST_INVALID_HANDLE         = -1006,  ///< ´íÎó¾ä±ú
-	MVST_INVALID_ID             = -1007,  ///< ´íÎóID
-	MVST_NO_DATA                = -1008,  ///< Ã»ÓĞÊı¾İ
-	MVST_INVALID_PARAMETER      = -1009,  ///< ´íÎó²ÎÊı
-	MVST_FILE_IO                = -1010,  ///< IO´íÎó
-	MVST_TIMEOUT                = -1011,  ///< ³¬Ê±
-	MVST_ERR_ABORT              = -1012,  ///< ÍË³ö
-	MVST_INVALID_BUFFER_SIZE    = -1013,  ///< »º³åÇø³ß´ç´íÎó
-	MVST_ERR_NOT_AVAILABLE      = -1014,  ///< ÎŞ·¨·ÃÎÊ
-	MVST_INVALID_ADDRESS        = -1015,  ///< µØÖ·´íÎó
+	MVST_SUCCESS                = 0,      ///< æ²¡æœ‰é”™è¯¯      
+	MVST_ERROR                  = -1001,  ///< ä¸€èˆ¬é”™è¯¯
+	MVST_ERR_NOT_INITIALIZED    = -1002,  //!< æ²¡æœ‰åˆå§‹åŒ–
+	MVST_ERR_NOT_IMPLEMENTED    = -1003,  //!< æ²¡æœ‰å®ç°
+	MVST_ERR_RESOURCE_IN_USE    = -1004,  //!< èµ„æºè¢«å ç”¨
+	MVST_ACCESS_DENIED          = -1005,  ///< æ— æ³•è®¿é—®
+	MVST_INVALID_HANDLE         = -1006,  ///< é”™è¯¯å¥æŸ„
+	MVST_INVALID_ID             = -1007,  ///< é”™è¯¯ID
+	MVST_NO_DATA                = -1008,  ///< æ²¡æœ‰æ•°æ®
+	MVST_INVALID_PARAMETER      = -1009,  ///< é”™è¯¯å‚æ•°
+	MVST_FILE_IO                = -1010,  ///< IOé”™è¯¯
+	MVST_TIMEOUT                = -1011,  ///< è¶…æ—¶
+	MVST_ERR_ABORT              = -1012,  ///< é€€å‡º
+	MVST_INVALID_BUFFER_SIZE    = -1013,  ///< ç¼“å†²åŒºå°ºå¯¸é”™è¯¯
+	MVST_ERR_NOT_AVAILABLE      = -1014,  ///< æ— æ³•è®¿é—®
+	MVST_INVALID_ADDRESS        = -1015,  ///< åœ°å€é”™è¯¯
 }MVSTATUS_CODES;
 
 typedef struct  
 {
-	unsigned char mIpAddr[4];	//!<Ïà»úµÄIPµØÖ·
-	unsigned char mEthernetAddr[6];	//!<Ïà»úµÄMACµØÖ·
-	char mMfgName[32];	//!<Ïà»ú³§ÉÌÃû³Æ
-	char mModelName[32]; //!<Ïà»úĞÍºÅ
-	char mSerialNumber[16];	//!<Ïà»úĞòÁĞºÅ
-	char mUserDefinedName[16];	//!<ÓÃ»§ÉèÖÃµÄÏà»úÃû³Æ
-	unsigned char m_IfIp[4];	//!<¼ÆËã»úºÍÏà»úÁ¬½ÓµÄÍø¿¨IPµØÖ·
-	unsigned char m_IfMAC[6];	//!<¼ÆËã»úºÍÏà»úÁ¬½ÓµÄÍø¿¨MACµØÖ·
+	unsigned char mIpAddr[4];	//!<ç›¸æœºçš„IPåœ°å€
+	unsigned char mEthernetAddr[6];	//!<ç›¸æœºçš„MACåœ°å€
+	char mMfgName[32];	//!<ç›¸æœºå‚å•†åç§°
+	char mModelName[32]; //!<ç›¸æœºå‹å·
+	char mSerialNumber[16];	//!<ç›¸æœºåºåˆ—å·
+	char mUserDefinedName[16];	//!<ç”¨æˆ·è®¾ç½®çš„ç›¸æœºåç§°
+	unsigned char m_IfIp[4];	//!<è®¡ç®—æœºå’Œç›¸æœºè¿æ¥çš„ç½‘å¡IPåœ°å€
+	unsigned char m_IfMAC[6];	//!<è®¡ç®—æœºå’Œç›¸æœºè¿æ¥çš„ç½‘å¡MACåœ°å€
 }MVCamInfo;
 
 typedef enum 
 {
-	TriggerSource_Software=0,//!<´¥·¢Ä£Ê½ÏÂ£¬ÓÉÈí´¥·¢(Èí¼şÖ¸Áî)À´´¥·¢²É¼¯
-	TriggerSource_Line1=2 //!<´¥·¢Ä£Ê½ÏÂ£¬ÓĞÍâ´¥·¢ĞÅºÅÀ´´¥·¢²É¼¯
+	TriggerSource_Software=0,//!<è§¦å‘æ¨¡å¼ä¸‹ï¼Œç”±è½¯è§¦å‘(è½¯ä»¶æŒ‡ä»¤)æ¥è§¦å‘é‡‡é›†
+	TriggerSource_Line1=2 //!<è§¦å‘æ¨¡å¼ä¸‹ï¼Œæœ‰å¤–è§¦å‘ä¿¡å·æ¥è§¦å‘é‡‡é›†
 }TriggerSourceEnums;
 
 typedef enum 
 {
-	TriggerMode_Off,  //!<´¥·¢Ä£Ê½¹Ø£¬¼´FreeRunÄ£Ê½£¬Ïà»úÁ¬Ğø²É¼¯
-	TriggerMode_On	//!<´¥·¢Ä£Ê½¿ª£¬Ïà»úµÈ´ıÈí´¥·¢»òÍâ´¥·¢ĞÅºÅÔÙ²É¼¯Í¼Ïñ
+	TriggerMode_Off,  //!<è§¦å‘æ¨¡å¼å…³ï¼Œå³FreeRunæ¨¡å¼ï¼Œç›¸æœºè¿ç»­é‡‡é›†
+	TriggerMode_On	//!<è§¦å‘æ¨¡å¼å¼€ï¼Œç›¸æœºç­‰å¾…è½¯è§¦å‘æˆ–å¤–è§¦å‘ä¿¡å·å†é‡‡é›†å›¾åƒ
 }TriggerModeEnums;
 
 typedef enum 
 {
-	TriggerActivation_RisingEdge,//!<ÉÏÉıÑØ´¥·¢
-	TriggerActivation_FallingEdge//!<ÏÂ½µÑØ´¥·¢
+	TriggerActivation_RisingEdge,//!<ä¸Šå‡æ²¿è§¦å‘
+	TriggerActivation_FallingEdge//!<ä¸‹é™æ²¿è§¦å‘
 }TriggerActivationEnums;
 
 typedef enum 
 {
-	LineSource_Off=0,  //!<¹Ø±Õ
-	LineSource_ExposureActive=5,  //!<ºÍÆØ¹âÍ¬Ê±
-	LineSource_Timer1Active=6,	//!<ÓÉ¶¨Ê±Æ÷¿ØÖÆ
-	LineSource_UserOutput0=12	//!<Ö±½ÓÓÉÈí¼ş¿ØÖÆ
+	LineSource_Off=0,  //!<å…³é—­
+	LineSource_ExposureActive=5,  //!<å’Œæ›å…‰åŒæ—¶
+	LineSource_Timer1Active=6,	//!<ç”±å®šæ—¶å™¨æ§åˆ¶
+	LineSource_UserOutput0=12	//!<ç›´æ¥ç”±è½¯ä»¶æ§åˆ¶
 }LineSourceEnums;
 
 typedef struct  
 {
-	unsigned long m_nTotalBuf;	//!<´Ó¿ªÊ¼²É¼¯£¬×Ü¼Æ³É¹¦ÊÕµ½µÄÍêÕûÍ¼ÏñÖ¡Êı
-	unsigned long m_nFailedBuf;	//!<´Ó¿ªÊ¼²É¼¯£¬×Ü¼ÆÊÕµ½µÄ²»ÍêÕûÍ¼ÏñÖ¡Êı
-	unsigned long m_nTotalPacket;	//!<´Ó¿ªÊ¼²É¼¯£¬×Ü¼ÆÊÕµ½µÄÍ¼ÏñÊı¾İ°üÊı
-	unsigned long m_nFailedPacket;	//!<´Ó¿ªÊ¼²É¼¯£¬×Ü¼Æ¶ªÊ§µÄÍ¼ÏñÊı¾İ°üÊı
-	unsigned long m_nResendPacketReq;//!<´Ó¿ªÊ¼²É¼¯£¬×Ü¼ÆÖØ·¢ÇëÇóµÄÍ¼ÏñÊı¾İ°üÊı
-	unsigned long m_nResendPacket;//!<´Ó¿ªÊ¼²É¼¯£¬×Ü¼ÆÖØ·¢³É¹¦µÄÍ¼ÏñÊı¾İ°üÊı
+	unsigned long m_nTotalBuf;	//!<ä»å¼€å§‹é‡‡é›†ï¼Œæ€»è®¡æˆåŠŸæ”¶åˆ°çš„å®Œæ•´å›¾åƒå¸§æ•°
+	unsigned long m_nFailedBuf;	//!<ä»å¼€å§‹é‡‡é›†ï¼Œæ€»è®¡æ”¶åˆ°çš„ä¸å®Œæ•´å›¾åƒå¸§æ•°
+	unsigned long m_nTotalPacket;	//!<ä»å¼€å§‹é‡‡é›†ï¼Œæ€»è®¡æ”¶åˆ°çš„å›¾åƒæ•°æ®åŒ…æ•°
+	unsigned long m_nFailedPacket;	//!<ä»å¼€å§‹é‡‡é›†ï¼Œæ€»è®¡ä¸¢å¤±çš„å›¾åƒæ•°æ®åŒ…æ•°
+	unsigned long m_nResendPacketReq;//!<ä»å¼€å§‹é‡‡é›†ï¼Œæ€»è®¡é‡å‘è¯·æ±‚çš„å›¾åƒæ•°æ®åŒ…æ•°
+	unsigned long m_nResendPacket;//!<ä»å¼€å§‹é‡‡é›†ï¼Œæ€»è®¡é‡å‘æˆåŠŸçš„å›¾åƒæ•°æ®åŒ…æ•°
 }MVStreamStatistic;
 
 typedef enum 
 {
-	UserSetSelector_Default,  //!<³ö³§ÉèÖÃ
-	UserSetSelector_UserSet1,  //!<ÓÃ»§ÉèÖÃ1
-	UserSetSelector_UserSet2   //!<ÓÃ»§ÉèÖÃ2
+	UserSetSelector_Default,  //!<å‡ºå‚è®¾ç½®
+	UserSetSelector_UserSet1,  //!<ç”¨æˆ·è®¾ç½®1
+	UserSetSelector_UserSet2   //!<ç”¨æˆ·è®¾ç½®2
 }UserSetSelectorEnums;
 
 typedef enum 
 {
-	SensorTaps_One,  //!<µ¥Í¨µÀ
-	SensorTaps_Two,  //!<Ë«Í¨µÀ
-	SensorTaps_Three,  //!<ÈıÍ¨µÀ
-	SensorTaps_Four,  //!<ËÄÍ¨µÀ
+	SensorTaps_One,  //!<å•é€šé“
+	SensorTaps_Two,  //!<åŒé€šé“
+	SensorTaps_Three,  //!<ä¸‰é€šé“
+	SensorTaps_Four,  //!<å››é€šé“
 }SensorTapsEnums;
 
 typedef enum 
@@ -283,15 +283,15 @@ typedef enum
 //////////////////////////////////////////////////////////////////////////
 typedef enum 
 {
-	FlipHorizontal = 0,  //!< ×óÓÒ·­×ª
-	FlipVertical = 1, //!< ÉÏÏÂ·­×ª
-	FlipBoth = 2 //!< Ğı×ª180¶È
+	FlipHorizontal = 0,  //!< å·¦å³ç¿»è½¬
+	FlipVertical = 1, //!< ä¸Šä¸‹ç¿»è½¬
+	FlipBoth = 2 //!< æ—‹è½¬180åº¦
 } ImageFlipType;
 
 typedef enum 
 {
-	Rotate90DegCw = 0,       //!< Ë³Ê±ÕëĞı×ª90¶È
-	Rotate90DegCcw = 1       //!< ÄæÊ±ÕëĞı×ª90¶È
+	Rotate90DegCw = 0,       //!< é¡ºæ—¶é’ˆæ—‹è½¬90åº¦
+	Rotate90DegCcw = 1       //!< é€†æ—¶é’ˆæ—‹è½¬90åº¦
 }ImageRotateType;
 
 typedef enum 
@@ -303,14 +303,14 @@ typedef enum
 //! Valid values for EventID
 typedef enum 
 {
-	EVID_LOST = 0,	//!< ÊÂ¼şID£¬Ïà»ú¶Ï¿ª
-	EVID_RECONNECT = 1	//! ÊÂ¼şID£¬Ïà»úÖØĞÂÁ¬ÉÏÁË
+	EVID_LOST = 0,	//!< äº‹ä»¶IDï¼Œç›¸æœºæ–­å¼€
+	EVID_RECONNECT = 1	//! äº‹ä»¶IDï¼Œç›¸æœºé‡æ–°è¿ä¸Šäº†
 }EventIdEnums;
 
 
 typedef enum 
 {
-	TestImageOff = 0,			//!< ²âÊÔÍ¼¹Ø±Õ£¬Õı³£´«Í¼
+	TestImageOff = 0,			//!< æµ‹è¯•å›¾å…³é—­ï¼Œæ­£å¸¸ä¼ å›¾
 	TestBlackImage = 1,
 	TestWhiteImage = 2,
 	TestGreyHorizontalRampImage = 3,
@@ -318,8 +318,8 @@ typedef enum
 	TestHorzontalLineMovingImage = 7,
 	TestColorBarImage = 9,
 	TestFrameCounterImage = 10,
-	TestSensorSolidImage = 11, //!< À´×Ô´«¸ĞÆ÷µÄ´¿É«»ò²ÊÌõÍ¼Ïñ
-	TestSensorFadeImage = 12  //!< À´×Ô´«¸ĞÆ÷µÄ½¥±äÍ¼Ïñ
+	TestSensorSolidImage = 11, //!< æ¥è‡ªä¼ æ„Ÿå™¨çš„çº¯è‰²æˆ–å½©æ¡å›¾åƒ
+	TestSensorFadeImage = 12  //!< æ¥è‡ªä¼ æ„Ÿå™¨çš„æ¸å˜å›¾åƒ
 }TestImageEnums;
 
 typedef int (__stdcall*MVStreamCB)(MV_IMAGE_INFO*, ULONG_PTR nUserVal);
