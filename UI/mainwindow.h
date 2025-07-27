@@ -5,6 +5,7 @@
 
 
 #include "../Core/mvcamera.h"
+#include "../Core/yolo.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -15,7 +16,13 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
+    QThread YOLOThread;
+public slots:
+    // 收到通知显示结果
+    void showYOLORes(const QImage& image);
+signals:
+    // 收到相机QIMAGE通知YOLO检测
+    void operateYOLO(const QImage& image);
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -38,5 +45,7 @@ private:
     Ui::MainWindow *ui;
     // 维视相机指针
     std::unique_ptr<MVCamera> m_Camera;
+    // YOLO 指针
+    YOLO* mp_Yolo = nullptr;
 };
 #endif // MAINWINDOW_H

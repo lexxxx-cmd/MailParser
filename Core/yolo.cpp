@@ -1,7 +1,8 @@
 #include "yolo.h"
-
+#include <qimage.h>
 YOLO::YOLO(const std::string& engine_file_path)
 {
+    // 读取引擎
     std::ifstream file(engine_file_path, std::ios::binary);
     assert(file.good());
     file.seekg(0, std::ios::end);
@@ -9,12 +10,14 @@ YOLO::YOLO(const std::string& engine_file_path)
     file.seekg(0, std::ios::beg);
     char* trtModelStream = new char[size];
     assert(trtModelStream);
+    // 存入内存
     file.read(trtModelStream, size);
     file.close();
+    // 初始化插件、运行时
     initLibNvInferPlugins(&this->gLogger, "");
     this->runtime = nvinfer1::createInferRuntime(this->gLogger);
     assert(this->runtime != nullptr);
-
+    // 反序列化并创建上下文
     this->engine = this->runtime->deserializeCudaEngine(trtModelStream, size);
     assert(this->engine != nullptr);
     delete[] trtModelStream;
@@ -22,7 +25,7 @@ YOLO::YOLO(const std::string& engine_file_path)
 
     assert(this->context != nullptr);
     cudaStreamCreate(&this->stream);
-
+    // 拿到输入输出信息
 #ifdef TRT_10
     this->num_bindings = this->engine->getNbIOTensors();
 #else
@@ -97,7 +100,7 @@ YOLO::~YOLO()
 }
 void YOLO::make_pipe(bool warmup)
 {
-
+    // 为输入绑定分配 GPU 内存
     for (auto& bindings : this->input_bindings) {
         void* d_ptr;
         CHECK(cudaMallocAsync(&d_ptr, bindings.size * bindings.dsize, this->stream));
@@ -109,7 +112,7 @@ void YOLO::make_pipe(bool warmup)
         this->context->setTensorAddress(name, d_ptr);
 #endif
     }
-
+    // 为输出绑定分配 GPU 内存 + 主机固定内存
     for (auto& bindings : this->output_bindings) {
         void *d_ptr, *h_ptr;
 
@@ -142,6 +145,7 @@ void YOLO::make_pipe(bool warmup)
 
 void YOLO::letterbox(const cv::Mat& image, cv::Mat& out, cv::Size& size)
 {
+    // 目标size
     const float inp_h  = size.height;
     const float inp_w  = size.width;
     float       height = image.rows;
@@ -168,7 +172,7 @@ void YOLO::letterbox(const cv::Mat& image, cv::Mat& out, cv::Size& size)
     int bottom = int(std::round(dh + 0.1f));
     int left   = int(std::round(dw - 0.1f));
     int right  = int(std::round(dw + 0.1f));
-
+    // 添加灰边
     cv::copyMakeBorder(tmp, tmp, top, bottom, left, right, cv::BORDER_CONSTANT, {114, 114, 114});
 
     out.create({1, 3, (int)inp_h, (int)inp_w}, CV_32F);
@@ -191,7 +195,59 @@ void YOLO::letterbox(const cv::Mat& image, cv::Mat& out, cv::Size& size)
     this->pparam.width  = width;
     ;
 }
+void YOLO::letterbox(const QImage& image, cv::Mat& out, cv::Size& size)
+{
+    // 目标size
+    const float inp_h  = size.height;
+    const float inp_w  = size.width;
+    float       height = image.height();
+    float       width  = image.width();
 
+    float r    = std::min(inp_h / height, inp_w / width);
+    int   padw = std::round(width * r);
+    int   padh = std::round(height * r);
+
+    cv::Mat tmp;
+    if ((int)width != padw || (int)height != padh) {
+        cv::resize(image, tmp, cv::Size(padw, padh));
+    }
+    else {
+        tmp = image.clone();
+    }
+
+    float dw = inp_w - padw;
+    float dh = inp_h - padh;
+
+    dw /= 2.0f;
+    dh /= 2.0f;
+    int top    = int(std::round(dh - 0.1f));
+    int bottom = int(std::round(dh + 0.1f));
+    int left   = int(std::round(dw - 0.1f));
+    int right  = int(std::round(dw + 0.1f));
+    // 添加灰边
+    cv::copyMakeBorder(tmp, tmp, top, bottom, left, right, cv::BORDER_CONSTANT, {114, 114, 114});
+
+    out.create({1, 3, (int)inp_h, (int)inp_w}, CV_32F);
+
+    std::vector<cv::Mat> channels;
+    cv::split(tmp, channels);
+
+    cv::Mat c0((int)inp_h, (int)inp_w, CV_32F, (float*)out.data);
+    cv::Mat c1((int)inp_h, (int)inp_w, CV_32F, (float*)out.data + (int)inp_h * (int)inp_w);
+    cv::Mat c2((int)inp_h, (int)inp_w, CV_32F, (float*)out.data + (int)inp_h * (int)inp_w * 2);
+
+    channels[0].convertTo(c2, CV_32F, 1 / 255.f);
+    channels[1].convertTo(c1, CV_32F, 1 / 255.f);
+    channels[2].convertTo(c0, CV_32F, 1 / 255.f);
+
+    this->pparam.ratio  = 1 / r;
+    this->pparam.dw     = dw;
+    this->pparam.dh     = dh;
+    this->pparam.height = height;
+    this->pparam.width  = width;
+    ;
+}
+// 预处理后图像拷贝至gpu
 void YOLO::copy_from_Mat(const cv::Mat& image)
 {
     cv::Mat  nchw;
@@ -217,10 +273,10 @@ void YOLO::copy_from_Mat(const cv::Mat& image, cv::Size& size)
 {
     cv::Mat nchw;
     this->letterbox(image, nchw, size);
-
+    // 从 CPU 异步拷贝到 GPU
     CHECK(cudaMemcpyAsync(
         this->device_ptrs[0], nchw.ptr<float>(), nchw.total() * nchw.elemSize(), cudaMemcpyHostToDevice, this->stream));
-
+    // 设置动态输入形状
 #ifdef TRT_10
     auto name = this->input_bindings[0].name.c_str();
     this->context->setInputShape(name, nvinfer1::Dims{4, {1, 3, size.height, size.width}});
@@ -237,6 +293,7 @@ void YOLO::infer()
 #else
     this->context->enqueueV2(this->device_ptrs.data(), this->stream, nullptr);
 #endif
+    // 将输出结果从 GPU 异步拷贝到 CPU
     for (int i = 0; i < this->num_outputs; i++) {
         size_t osize = this->output_bindings[i].size * this->output_bindings[i].dsize;
         CHECK(cudaMemcpyAsync(
@@ -278,6 +335,7 @@ void YOLO::postprocess(std::vector<Object>& objs)
         obj.label       = *(labels + i);
         objs.push_back(obj);
     }
+    // TODO：发送信号至UI？
 }
 
 void YOLO::draw_objects(const cv::Mat&                                image,
@@ -308,4 +366,14 @@ void YOLO::draw_objects(const cv::Mat&                                image,
 
         cv::putText(res, text, cv::Point(x, y + label_size.height), cv::FONT_HERSHEY_SIMPLEX, 0.4, {255, 255, 255}, 1);
     }
+}
+
+void YOLO::pipeline(const QImage& image)
+{
+    // ui线程通知拿到图像数据转为mat格式
+    QImage res;
+    objs.clear();
+    this->copy_from_Mat(image, size);
+    emit resReady(res);
+
 }

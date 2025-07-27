@@ -10,17 +10,26 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    cudaSetDevice(0);
     ui->setupUi(this);
-    //创建一个相机对象
+    // 创建一个相机对象
     m_Camera = std::make_unique<MVCamera>(parent);
-    //设置label最大宽高为Preview的最大值
+    // 设置label最大宽高为Preview的最大值
     ui->label->setMaximumSize(640,480);
-    //链接信号与槽
+    // 链接信号与槽
     QObject::connect(m_Camera.get(),&MVCamera::imageReady,this,&MainWindow::onImageShow);
     QObject::connect(m_Camera.get(),&MVCamera::errorOccur,this,&MainWindow::onErrorShow);
-    //显示默认界面，不打开相机
+    // 显示默认界面，不打开相机
     //m_Camera->openCamera(m_Camera->getCameras().first());
-
+    // 创建一个yolo对象
+    mp_Yolo = new YOLO("");// TODO
+    mp_Yolo->make_pipe(true);
+    mp_Yolo->moveToThread(&YOLOThread);
+    // 链接信号与槽
+    connect(&YOLOThread,&QThread::finished,mp_Yolo,&QObject::deleteLater);
+    connect(this,&MainWindow::operateYOLO,mp_Yolo,&YOLO::pipeline);
+    connect(mp_Yolo,&YOLO::resReady,this,&MainWindow::showYOLORes);
+    YOLOThread.start();
     ui->ButtonShot->setEnabled(true);
     ui->ButtonOpen->setEnabled(true);
     ui->ButtonStop->setEnabled(false);
@@ -31,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    YOLOThread.quit();
+    YOLOThread.wait();
     delete ui;
 }
 
@@ -106,12 +117,19 @@ void MainWindow::on_ButtonDetect_clicked()
 void MainWindow::onImageShow(const QImage& image)
 {
     ui->label->setPixmap(QPixmap::fromImage(image));
+    // 同时发送给YOLO线程
+    emit operateYOLO(image);
 }
 
 void MainWindow::onErrorShow(const QString& error)
 {
     QMessageBox::StandardButton t_Re = QMessageBox::warning(this,"Warning: ",error,QMessageBox::Yes);
     if (t_Re == QMessageBox::Yes) return;
+}
+
+void MainWindow::showYOLORes(const QImage& image)
+{
+    // ui->label2->setPixmap(QPixmap::fromImage(image));
 }
 
 

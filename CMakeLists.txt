@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.18)
 
-project(MailParser VERSION 0.1 LANGUAGES CXX)
+project(MailParser VERSION 0.1 LANGUAGES CXX CUDA)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -18,13 +18,25 @@ find_package(OpenCV REQUIRED)
 
 # 设置 TensorRT 安装路径
 set(TENSORRT_ROOT "E:/TensorRT/TensorRT-10.12.0.36" CACHE PATH "TensorRT installation directory")
-
-# 设置 CUDA 安装路径（如果使用 CUDA）
+add_definitions(-DTRT_10)
+if (TensorRT_VERSION_MAJOR GREATER_EQUAL 10)
+    message(STATUS "Build with -DTRT_10")
+    add_definitions(-DTRT_10)
+endif ()
+# 在 CMakeLists.txt 中添加
+set(CMAKE_CUDA_ARCHITECTURES 60 61 62 70 72 75 86 89 90)
 set(CUDA_TOOLKIT_ROOT_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.1" CACHE PATH "CUDA installation directory")
+find_package(CUDAToolkit REQUIRED)
+file(GLOB CUDA_LIBS "${CUDAToolkit}/*.lib")
+# 打印 CUDA 信息
+message(STATUS "CUDA version: ${CUDAToolkit_VERSION}")
+message(STATUS "CUDA include: ${CUDAToolkit_INCLUDE_DIRS}")
+message(STATUS "CUDA libraries: ${CUDAToolkit_LIBRARY_DIR}")
 list(APPEND ALL_INCLUDE_DIRS
         ${OpenCV_INCLUDE_DIRS}
         ${TENSORRT_ROOT}/include
         ${CUDA_TOOLKIT_ROOT_DIR}/include
+        ${CUDAToolkit_INCLUDE_DIRS}
 )
 list(APPEND ALL_LIBS
         ${OpenCV_LIBRARIES}
@@ -32,8 +44,13 @@ list(APPEND ALL_LIBS
         nvinfer_plugin_10.lib
         nvinfer_vc_plugin_10.lib
         nvonnxparser_10.lib
-)
+        cudart.lib
 
+
+)
+list(APPEND ALL_LIB_DIRS
+     ${CUDAToolkit_LIBRARY_DIR}
+)
 set(TS_FILES MailParser_en_AS.ts)
 set(UI_SOURCES
         UI/mainwindow.cpp
@@ -90,6 +107,7 @@ target_link_directories(
                         PUBLIC
                         ${TENSORRT_ROOT}/lib
                         ${CUDA_TOOLKIT_ROOT_DIR}/lib/x64
+                        ${ALL_LIB_DIRS}
                 )
 target_link_libraries(MailParser PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets

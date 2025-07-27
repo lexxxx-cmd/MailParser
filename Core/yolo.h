@@ -2,12 +2,19 @@
 #define YOLO_H
 
 #include<iostream>
+#include <QObject.h>
+#include <QThread>
 #include<vector>
 #include "NvInferPlugin.h"
 #include "common.hpp"
 #include <fstream>
 using namespace det;
-class YOLO {
+class YOLO : public QObject{
+    Q_OBJECT
+public slots:
+    void                 pipeline(const QImage& image);
+signals:
+    void                 resReady(const QImage& image);
 public:
     explicit YOLO(const std::string& engine_file_path);
     ~YOLO();
@@ -16,6 +23,7 @@ public:
     void                 copy_from_Mat(const cv::Mat& image);
     void                 copy_from_Mat(const cv::Mat& image, cv::Size& size);
     void                 letterbox(const cv::Mat& image, cv::Mat& out, cv::Size& size);
+    void                 letterbox(const QImage& image, cv::Mat& out, cv::Size& size);
     void                 infer();
     void                 postprocess(std::vector<Object>& objs);
     static void          draw_objects(const cv::Mat&                                image,
@@ -30,6 +38,7 @@ public:
     std::vector<Binding> output_bindings;
     std::vector<void*>   host_ptrs;
     std::vector<void*>   device_ptrs;
+    std::vector<Object>  objs;
 
     PreParam pparam;
 
