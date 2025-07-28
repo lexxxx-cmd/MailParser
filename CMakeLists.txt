@@ -45,6 +45,7 @@ list(APPEND ALL_LIBS
         nvinfer_vc_plugin_10.lib
         nvonnxparser_10.lib
         cudart.lib
+        nvonnxparser_10.lib
 
 
 )

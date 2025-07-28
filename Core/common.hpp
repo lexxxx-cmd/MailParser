@@ -161,7 +161,6 @@ public:
             }
         }
     };
-
 inline int get_size_by_dims(const nvinfer1::Dims& dims)
 {
     int size = 1;
