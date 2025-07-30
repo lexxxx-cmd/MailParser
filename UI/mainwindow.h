@@ -41,6 +41,10 @@ private slots:
     void onImageShow(const QImage& image);
     void onErrorShow(const QString& error);
 
+    void on_radioButton_toggled(bool checked);
+
+    void on_radioButton_2_toggled(bool checked);
+
 private:
     Ui::MainWindow *ui;
     // 维视相机指针

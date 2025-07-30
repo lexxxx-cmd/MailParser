@@ -78,8 +78,8 @@ void MVCamera::showProperty() {
 
 QImage img2QImage(HANDLE hImg)
 {
-    int w = MVImageGetWidth(hImg);
-    int h = MVImageGetHeight(hImg);
+    int w = MVImageGetWidth(hImg); // 1280
+    int h = MVImageGetHeight(hImg); // 960
     int bpp = MVImageGetBPP(hImg);
     int pitch = MVImageGetPitch(hImg);
     unsigned char *pImgData = (unsigned char *)MVImageGetBits(hImg);

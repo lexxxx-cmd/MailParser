@@ -1,6 +1,7 @@
 #include "yolo.h"
 #include <filesystem>
 #include <qimage.h>
+#include <QDebug>
 YOLO::YOLO(const std::string& engine_file_path)
 {
     initLibNvInferPlugins(&this->gLogger, "");
@@ -507,6 +508,7 @@ void YOLO::pipeline(const QImage& image)
     this->postprocess(objs);
     this->draw_objects(mat, res, objs);
     auto tc = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.;
+    qDebug() << "time: " << tc;
     emit resReady(Converter::cvMatToQImage(res));
 
 }

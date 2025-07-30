@@ -129,8 +129,22 @@ void MainWindow::onErrorShow(const QString& error)
 
 void MainWindow::showYOLORes(const QImage& image)
 {
-    qDebug() << "showRes...";
-    // ui->label2->setPixmap(QPixmap::fromImage(image));
+    //qDebug() << "showRes...";
+    ui->labelRes->setPixmap(QPixmap::fromImage(image));
 }
 
+
+
+void MainWindow::on_radioButton_toggled(bool checked)
+{
+    ui->labelRes->setVisible(false);
+    ui->label->setVisible(true);
+}
+
+
+void MainWindow::on_radioButton_2_toggled(bool checked)
+{
+    ui->label->setVisible(false);
+    ui->labelRes->setVisible(true);
+}
 
