@@ -1,12 +1,24 @@
 #include "yolo.h"
+#include <filesystem>
 #include <qimage.h>
 YOLO::YOLO(const std::string& engine_file_path)
 {
+    initLibNvInferPlugins(&this->gLogger, "");
+    this->runtime = nvinfer1::createInferRuntime(this->gLogger);
+    assert(this->runtime != nullptr);
     // 从引擎文件构建
-    bool btmp = loadFromEngine(engine_file_path);
-    this->context = this->engine->createExecutionContext();
+    std::filesystem::path p(engine_file_path);
+    if(p.extension() == ".engine") {
+        bool built = buildFromEngine(engine_file_path);
+    }else if (p.extension() == ".onnx") {
+        bool built = buildFromOnnx(engine_file_path);
+    }else {
+        assert(this->engine != nullptr);
+    }
 
+    this->context = this->engine->createExecutionContext();
     assert(this->context != nullptr);
+
     cudaStreamCreate(&this->stream);
     // 拿到输入输出信息
 #ifdef TRT_10
@@ -28,7 +40,7 @@ YOLO::YOLO(const std::string& engine_file_path)
         binding.name  = name;
         binding.dsize = type_to_size(dtype);
 #ifdef TRT_10
-        bool IsInput = engine->getTensorIOMode(name.c_str()) == nvinfer1::TensorIOMode::kINPUT;
+        bool IsInput = this->engine->getTensorIOMode(name.c_str()) == nvinfer1::TensorIOMode::kINPUT;
 #else
         bool IsInput = engine->bindingIsInput(i);
 #endif
@@ -85,10 +97,70 @@ YOLO::~YOLO()
 bool YOLO::buildFromOnnx(const std::string& onnx_path)
 {
     // 按官方api来
+    this->builder = nvinfer1::createInferBuilder(this->gLogger);
+    if (!this->builder)
+    {
+        return false;
+    }
 
+    this->network = this->builder->createNetworkV2(0);
+    if (!this->network)
+    {
+        return false;
+    }
+
+    this->config = this->builder->createBuilderConfig();
+    if (!this->config)
+    {
+        return false;
+    }
+    // 设置内存限制
+    this->config->setMemoryPoolLimit(nvinfer1::MemoryPoolType::kWORKSPACE, 1U << 30); // 1GB
+
+    // 设置精度模式
+    // this->config->setFlag(nvinfer1::BuilderFlag::kFP16);
+
+    this->parser
+        = nvonnxparser::createParser(*this->network, this->gLogger);
+    if (!this->parser)
+    {
+        return false;
+    }
+    auto parsed = this->parser->parseFromFile(onnx_path.c_str(),
+                                        static_cast<int>(nvinfer1::ILogger::Severity::kWARNING));
+    if (!parsed) {
+        // 输出解析错误
+        for (int32_t i = 0; i < this->parser->getNbErrors(); ++i) {
+            std::cout << "Parser error: " << this->parser->getError(i)->desc() << std::endl;
+        }
+        return false;
+    }
+    // 构建序列化网络
+    nvinfer1::IHostMemory* serializedModel = this->builder->buildSerializedNetwork(*this->network, *this->config);
+    if (!serializedModel) return false;
+    // 反序列化构建引擎
+    this->engine = this->runtime->deserializeCudaEngine(serializedModel->data(), serializedModel->size());
+    if (this->engine)
+    {
+        // 保存
+        std::ofstream file("E:/Qt/repos/MailParser/model/model.engine",std::ios::binary);// TODO:改为变量
+        file.write(reinterpret_cast<const char*>(serializedModel->data()), serializedModel->size());
+        file.close();
+    }
+
+    // 清理资源 TODO:智能指针
+    delete serializedModel;
+    delete this->parser;
+    delete this->config;
+    delete this->network;
+    delete this->builder;
+
+    serializedModel = nullptr;
+
+    return this->engine != nullptr;
 }
 
-bool YOLO::loadFromEngine(const std::string& engine_path)
+bool YOLO::buildFromEngine(const std::string& engine_path)
 {
     // 按yolov8_tensorrt文档来
     std::ifstream file(engine_path, std::ios::binary);
@@ -103,9 +175,6 @@ bool YOLO::loadFromEngine(const std::string& engine_path)
     // 存入内存
     file.read(trtModelStream, size);
     file.close();
-    //运行时
-    this->runtime = nvinfer1::createInferRuntime(this->gLogger);
-    assert(this->runtime != nullptr);
     // 反序列化并创建上下文
     this->engine = this->runtime->deserializeCudaEngine(trtModelStream, size);
     assert(this->engine != nullptr);
@@ -116,14 +185,15 @@ bool YOLO::loadFromEngine(const std::string& engine_path)
 
 void YOLO::make_pipe(bool warmup)
 {
+    // 准备缓冲区，gpu2个（输入+输出），cpu1个（输出拿数据）
     // 为输入绑定分配 GPU 内存
     for (auto& bindings : this->input_bindings) {
         void* d_ptr;
-        CHECK(cudaMallocAsync(&d_ptr, bindings.size * bindings.dsize, this->stream));
+        CHECK(cudaMallocAsync(&d_ptr, bindings.size * bindings.dsize, this->stream)); // 4 * 1228800(1*3*640*640)
         this->device_ptrs.push_back(d_ptr);
 
 #ifdef TRT_10
-        auto name = bindings.name.c_str();
+        auto name = bindings.name.c_str(); // "images"
         this->context->setInputShape(name, bindings.dims);
         this->context->setTensorAddress(name, d_ptr);
 #endif
@@ -132,14 +202,14 @@ void YOLO::make_pipe(bool warmup)
     for (auto& bindings : this->output_bindings) {
         void *d_ptr, *h_ptr;
 
-        size_t size = bindings.size * bindings.dsize;
+        size_t size = bindings.size * bindings.dsize; // 2142000(1 * 25200 * 85) * 4
         CHECK(cudaMallocAsync(&d_ptr, size, this->stream));
         CHECK(cudaHostAlloc(&h_ptr, size, 0));
         this->device_ptrs.push_back(d_ptr);
         this->host_ptrs.push_back(h_ptr);
 
 #ifdef TRT_10
-        auto name = bindings.name.c_str();
+        auto name = bindings.name.c_str(); // “output0”
         this->context->setTensorAddress(name, d_ptr);
 #endif
     }
@@ -266,10 +336,50 @@ void YOLO::infer()
     }
     cudaStreamSynchronize(this->stream);
 }
-
+/*
+void nms(std::vector<Object>& res, float* output, float conf_thresh, float nms_thresh) {
+    int det_size = sizeof(Object) / sizeof(float);
+    std::map<float, std::vector<Object>> m;
+    for (int i = 0; i < output[0] && i < kMaxNumOutputBbox; i++) {
+        if (output[1 + det_size * i + 4] <= conf_thresh)
+            continue;
+        Object det;
+        memcpy(&det, &output[1 + det_size * i], det_size * sizeof(float));
+        // Prevent code from cross-border access
+        auto left = (std::max)(det.bbox[0] - det.bbox[2] / 2.f, 0.f);
+        auto top = (std::max)(det.bbox[1] - det.bbox[3] / 2.f, 0.f);
+        auto right = (std::min)(det.bbox[0] + det.bbox[2] / 2.f, kInputW - 1.f);
+        auto bottom = (std::min)(det.bbox[1] + det.bbox[3] / 2.f, kInputH - 1.f);
+        det.bbox[2] = right - left;
+        det.bbox[3] = bottom - top;
+        det.bbox[0] = left + det.bbox[2] / 2.f;
+        det.bbox[1] = top + det.bbox[3] / 2.f;
+        if (m.count(det.class_id) == 0)
+            m.emplace(det.class_id, std::vector<Detection>());
+        m[det.class_id].push_back(det);
+    }
+    for (auto it = m.begin(); it != m.end(); it++) {
+        auto& dets = it->second;
+        std::sort(dets.begin(), dets.end(), cmp);
+        for (size_t m = 0; m < dets.size(); ++m) {
+            auto& item = dets[m];
+            res.push_back(item);
+            for (size_t n = m + 1; n < dets.size(); ++n) {
+                if (iou(item.bbox, dets[n].bbox) > nms_thresh) {
+                    dets.erase(dets.begin() + n);
+                    --n;
+                }
+            }
+        }
+    }
+*/
 void YOLO::postprocess(std::vector<Object>& objs)
 {
     objs.clear();
+    std::vector<cv::Rect_<float>> bboxes;
+    std::vector<float> scores;
+    std::vector<int> indices;
+    /*
     int*  num_dets = static_cast<int*>(this->host_ptrs[0]);
     auto* boxes    = static_cast<float*>(this->host_ptrs[1]);
     auto* scores   = static_cast<float*>(this->host_ptrs[2]);
@@ -279,7 +389,7 @@ void YOLO::postprocess(std::vector<Object>& objs)
     auto& width    = this->pparam.width;
     auto& height   = this->pparam.height;
     auto& ratio    = this->pparam.ratio;
-    for (int i = 0; i < num_dets[0]; i++) {
+    for (int i = 0; i < 25200; i++) {
         float* ptr = boxes + i * 4;
 
         float x0 = *ptr++ - dw;
@@ -301,21 +411,71 @@ void YOLO::postprocess(std::vector<Object>& objs)
         objs.push_back(obj);
     }
     // TODO：发送信号至UI？
+*/
+    float* output = static_cast<float*>(this->host_ptrs[0]);
+    int num_anchors = this->output_bindings[0].size / 85;
+
+    for (int i = 0; i < num_anchors; i++) {
+        // 每个框开头地址
+        float* anchor = output + i * 85;
+        float conf = anchor[4];
+        if (conf < 0.25) {
+            continue;
+        }
+
+        // 找到最大类别概率
+        float max_class_prob = 0.0;
+        int max_class_id = 0;
+
+        for (int j = 5; j < 85; j++) {
+            if (anchor[j] > max_class_prob) {
+                max_class_prob = anchor[j];
+                max_class_id = j - 5;
+            }
+        }
+        // 解析边界框坐标 (cx, cy, w, h)
+        float cx = anchor[0];
+        float cy = anchor[1];
+        float w = anchor[2];
+        float h = anchor[3];
+
+        float final_score = conf * max_class_prob;
+
+        if (final_score < 0.25) {
+            continue;
+        }
+        // 存储候选框
+        bboxes.push_back(cv::Rect(cx, cy, w, h));
+        scores.push_back(final_score);
+        indices.push_back(max_class_id);
+
+    }
+
+    // NMS
+
+    std::vector<int> keep_indices = FastNMS::nms(bboxes, scores, 0.4, 0.5);
+
+    for (auto idx : keep_indices) {
+        Object obj;
+        obj.rect = cv::Rect_<float>(bboxes[idx]);
+        obj.label = indices[idx];
+        obj.prob = scores[idx];
+        objs.push_back(obj);
+    }
 }
+
 
 void YOLO::draw_objects(const cv::Mat&                                image,
                           cv::Mat&                                      res,
-                          const std::vector<Object>&                    objs,
-                          const std::vector<std::string>&               CLASS_NAMES,
-                          const std::vector<std::vector<unsigned int>>& COLORS)
+                          const std::vector<Object>&                    objs)
 {
     res = image.clone();
     for (auto& obj : objs) {
-        cv::Scalar color = cv::Scalar(COLORS[obj.label][0], COLORS[obj.label][1], COLORS[obj.label][2]);
+        cv::Scalar color = cv::Scalar(0x27, 0xC1, 0x36);
         cv::rectangle(res, obj.rect, color, 2);
 
         char text[256];
-        sprintf(text, "%s %.1f%%", CLASS_NAMES[obj.label].c_str(), obj.prob * 100);
+        sprintf(text, "%s %.1f%%", "mail", obj.prob * 100);
 
         int      baseLine   = 0;
         cv::Size label_size = cv::getTextSize(text, cv::FONT_HERSHEY_SIMPLEX, 0.4, 1, &baseLine);
@@ -345,7 +505,7 @@ void YOLO::pipeline(const QImage& image)
     this->infer();
     auto end = std::chrono::system_clock::now();
     this->postprocess(objs);
-    this->draw_objects(mat, res, objs, CLASS_NAMES, COLORS);
+    this->draw_objects(mat, res, objs);
     auto tc = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.;
     emit resReady(Converter::cvMatToQImage(res));
 

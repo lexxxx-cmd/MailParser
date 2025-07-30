@@ -2,6 +2,8 @@
 #define COMMON_HPP
 #include "NvInfer.h"
 #include "filesystem.hpp"
+#include <vector>
+#include <algorithm>
 #include "opencv2/opencv.hpp"
 #include <qimage.h>
 
@@ -52,6 +54,7 @@ public:
         std::cerr << msg << std::endl;
     }
 };
+
     class Converter {
 public:
         static cv::Mat QImage2Mat(const QImage& image) {
@@ -192,7 +195,90 @@ inline static float clamp(float val, float min, float max)
 {
     return val > min ? (val < max ? val : max) : min;
 }
+// 优化版本：使用面积预计算
+class FastNMS {
+private:
+    // 静态辅助函数，计算两个矩形框的IoU
+    static float calculate_iou_fast(int i, int j,
+                                    const std::vector<cv::Rect_<float>>& boxes,
+                                    const std::vector<float>& areas) {
+        const auto& box1 = boxes[i];
+        const auto& box2 = boxes[j];
 
+        float x1 = std::max(box1.x, box2.x);
+        float y1 = std::max(box1.y, box2.y);
+        float x2 = std::min(box1.x + box1.width, box2.x + box2.width);
+        float y2 = std::min(box1.y + box1.height, box2.y + box2.height);
+
+        if (x2 <= x1 || y2 <= y1) {
+            return 0.0f;
+        }
+
+        float intersection = (x2 - x1) * (y2 - y1);
+        float union_area = areas[i] + areas[j] - intersection;
+
+        return intersection / union_area;
+    }
+
+public:
+    // 静态NMS方法
+    static std::vector<int> nms(const std::vector<cv::Rect_<float>>& boxes,
+                                const std::vector<float>& scores,
+                                float score_threshold,
+                                float nms_threshold) {
+
+        if (boxes.empty()) {
+            return {};
+        }
+
+        // 预计算所有框的面积
+        std::vector<float> areas(boxes.size());
+        for (int i = 0; i < boxes.size(); i++) {
+            areas[i] = boxes[i].width * boxes[i].height;
+        }
+
+        // 创建索引并按分数排序
+        std::vector<int> indices;
+        for (int i = 0; i < boxes.size(); i++) {
+            if (scores[i] >= score_threshold) {
+                indices.push_back(i);
+            }
+        }
+
+        std::sort(indices.begin(), indices.end(), [&scores](int i, int j) {
+            return scores[i] > scores[j];
+        });
+
+        std::vector<bool> suppressed(boxes.size(), false);
+        std::vector<int> keep;
+
+        for (int i = 0; i < indices.size(); i++) {
+            int idx = indices[i];
+
+            if (suppressed[idx]) {
+                continue;
+            }
+
+            keep.push_back(idx);
+
+            // 抑制重叠的框
+            for (int j = i + 1; j < indices.size(); j++) {
+                int jdx = indices[j];
+
+                if (suppressed[jdx]) {
+                    continue;
+                }
+
+                float iou = calculate_iou_fast(idx, jdx, boxes, areas);
+                if (iou > nms_threshold) {
+                    suppressed[jdx] = true;
+                }
+            }
+        }
+
+        return keep;
+    }
+};
 namespace det {
 struct Binding {
     size_t         size  = 1;
