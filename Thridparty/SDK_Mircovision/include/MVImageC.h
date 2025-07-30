@@ -21,181 +21,181 @@ extern "C"
 #endif
 
 /*!
-*  \brief ´´½¨Í¼Ïñ
-*  \param [in]	nWidth	Í¼Ïñ¿í¶È
-*  \param [in]	nHeight	Í¼Ïñ¸ß¶È
-*  \param [in]	nBPP	Ã¿ÏñËØBitÊı¡£È¡Öµ·¶Î§Îª8(8bit»Ò¶È),16(16bit»Ò¶È),24(8bit²ÊÉ«),48(16bit²ÊÉ«)
-*  \retval  Í¼Ïñ¾ä±ú	
+*  \brief åˆ›å»ºå›¾åƒ
+*  \param [in]	nWidth	å›¾åƒå®½åº¦
+*  \param [in]	nHeight	å›¾åƒé«˜åº¦
+*  \param [in]	nBPP	æ¯åƒç´ Bitæ•°ã€‚å–å€¼èŒƒå›´ä¸º8(8bitç°åº¦),16(16bitç°åº¦),24(8bitå½©è‰²),48(16bitå½©è‰²)
+*  \retval  å›¾åƒå¥æŸ„	
 */
 MVGIGE_API void* __stdcall MVImageCreate(int nWidth, int nHeight, int nBPP);
 
 /*!
-*  \brief ¸ù¾İ¿í¶È¡¢¸ß¶È¡¢ºÍÏñËØ¸ñÊ½´´½¨Í¼Ïñ
-*  \param [in]	nWidth	¿í¶È
-*  \param [in]	nHeight	¸ß¶È
-*  \param [in]	PixelFormat	ÏñËØ¸ñÊ½
+*  \brief æ ¹æ®å®½åº¦ã€é«˜åº¦ã€å’Œåƒç´ æ ¼å¼åˆ›å»ºå›¾åƒ
+*  \param [in]	nWidth	å®½åº¦
+*  \param [in]	nHeight	é«˜åº¦
+*  \param [in]	PixelFormat	åƒç´ æ ¼å¼
 *	\note
 *	@verbatim 
 *	------------------------------------------------
 *	|Pixelformat			|	Image Format		|
 *	------------------------------------------------
-*	|PixelFormat_Mono8		|	8 Bits »Ò¶ÈÍ¼		|
+*	|PixelFormat_Mono8		|	8 Bits ç°åº¦å›¾		|
 *	------------------------------------------------
-*	|PixelFormat_Mono16		|	16 Bits »Ò¶ÈÍ¼		|
+*	|PixelFormat_Mono16		|	16 Bits ç°åº¦å›¾		|
 *	------------------------------------------------
 *	|PixelFormat_BayerBG8	|						|
 *	|PixelFormat_BayerRG8	|						|
-*	|PixelFormat_BayerGB8	|	24 Bits BGR²ÊÉ«Í¼	|
+*	|PixelFormat_BayerGB8	|	24 Bits BGRå½©è‰²å›¾	|
 *	|PixelFormat_BayerGR8	|						|
 *	------------------------------------------------
 *	|PixelFormat_BayerBG16	|						|
 *	|PixelFormat_BayerRG16	|						|
-*	|PixelFormat_BayerGB16	|	48 Bits BGR²ÊÉ«Í¼	|
+*	|PixelFormat_BayerGB16	|	48 Bits BGRå½©è‰²å›¾	|
 *	|PixelFormat_BayerGR16	|						|
 *	------------------------------------------------
 *	@endverbatim 
-*  \retval  	Í¼Ïñ¾ä±ú	
+*  \retval  	å›¾åƒå¥æŸ„	
 */
 MVGIGE_API int __stdcall MVImageCreateByPixelFormat( void* hImage, int nWidth, int nHeight, MV_PixelFormatEnums PixelFormat );
 
 /*!
-*  \brief ÅĞ¶ÏÍ¼ÏñÊÇ·ñÎª¿Õ¡£ÔÚµ÷ÓÃCreate»òCreateByPixelFormatÖ®Ç°£¬Í¼ÏñÎª¿Õ
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \retval  	bool	TRUE:Í¼Ïñ»¹Î´´´½¨
+*  \brief åˆ¤æ–­å›¾åƒæ˜¯å¦ä¸ºç©ºã€‚åœ¨è°ƒç”¨Createæˆ–CreateByPixelFormatä¹‹å‰ï¼Œå›¾åƒä¸ºç©º
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \retval  	bool	TRUE:å›¾åƒè¿˜æœªåˆ›å»º
 */
 MVGIGE_API bool __stdcall MVImageIsNull(void* hImage);
 
 /*!
-*  \brief »ñÈ¡Í¼Ïñ¿í¶È£¬µ¥Î»ÎªÏñËØ
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \retval  	Í¼Ïñ¿í¶È
+*  \brief è·å–å›¾åƒå®½åº¦ï¼Œå•ä½ä¸ºåƒç´ 
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \retval  	å›¾åƒå®½åº¦
 */
 MVGIGE_API int __stdcall MVImageGetWidth(void* hImage);
 
 /*!
-*  \brief »ñÈ¡Í¼Ïñ¸ß¶È£¬µ¥Î»ÎªÏñËØ
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \retval  	Í¼Ïñ¸ß¶È
+*  \brief è·å–å›¾åƒé«˜åº¦ï¼Œå•ä½ä¸ºåƒç´ 
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \retval  	å›¾åƒé«˜åº¦
 */
 MVGIGE_API int __stdcall MVImageGetHeight(void* hImage);
 
 /*!
-*  \brief »ñÈ¡Í¼Ïñ»º³åÇøµÄÖ¸Õë
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \retval  Ö¸ÏòÍ¼Ïñ»º³åÇøµÄÖ¸Õë
+*  \brief è·å–å›¾åƒç¼“å†²åŒºçš„æŒ‡é’ˆ
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \retval  æŒ‡å‘å›¾åƒç¼“å†²åŒºçš„æŒ‡é’ˆ
 */
 MVGIGE_API void* __stdcall MVImageGetBits(void* hImage);
 
 /*!
-*  \brief »ñÈ¡Ò»ĞĞÍ¼ÏñµÄ×Ö½ÚÊı
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \retval  Ò»ĞĞÍ¼ÏñµÄ×Ö½ÚÊı
+*  \brief è·å–ä¸€è¡Œå›¾åƒçš„å­—èŠ‚æ•°
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \retval  ä¸€è¡Œå›¾åƒçš„å­—èŠ‚æ•°
 */
 MVGIGE_API int __stdcall MVImageGetPitch(void* hImage);
 
 /*!
-*  \brief »ñÈ¡Í¼ÏñÖĞÃ¿¸öÏñËØËùÕ¼Î»Êı
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \retval  Ã¿¸öÏñËØËùÕ¼Î»Êı¡£
-*  \note	8: 8Bit »Ò¶ÈÍ¼£¬16: 16Bit »Ò¶ÈÍ¼£¬24: 8Bit BGR²ÊÉ«Í¼£¬48: 16Bit BGR²ÊÉ«Í¼
+*  \brief è·å–å›¾åƒä¸­æ¯ä¸ªåƒç´ æ‰€å ä½æ•°
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \retval  æ¯ä¸ªåƒç´ æ‰€å ä½æ•°ã€‚
+*  \note	8: 8Bit ç°åº¦å›¾ï¼Œ16: 16Bit ç°åº¦å›¾ï¼Œ24: 8Bit BGRå½©è‰²å›¾ï¼Œ48: 16Bit BGRå½©è‰²å›¾
 */
 MVGIGE_API int __stdcall MVImageGetBPP(void* hImage);
 
 /*!
-*  \brief »ñÈ¡HBITMAPÀàĞÍµÄ¾ä±ú¡£ÓÃÓÚ»æÍ¼»òÉú³ÉAVI
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \retval  HBITMAPÀàĞÍµÄ¾ä±ú
+*  \brief è·å–HBITMAPç±»å‹çš„å¥æŸ„ã€‚ç”¨äºç»˜å›¾æˆ–ç”ŸæˆAVI
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \retval  HBITMAPç±»å‹çš„å¥æŸ„
 */
 MVGIGE_API HBITMAP __stdcall MVImageGetHBitmap(void* hImage);
 
 /*!
-*  \brief ÔÚÄ¿±êDCÉÏµÄÖ¸¶¨ÇøÓò»æÖÆ±¾Í¼ÏñµÄÈ«²¿»ò¾Ö²¿
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \param [in]	hDestDC	Ä¿±êDCµÄ¾ä±ú
-*  \param [in]	xDest	x×ø±ê£¬Ä¿±ê¾ØĞÎµÄ×óÉÏ½Ç¡£
-*  \param [in]	yDest	y×ø±ê£¬Ä¿±ê¾ØĞÎµÄ×óÉÏ½Ç¡£
-*  \param [in]	nDestWidth	¿í¶È£¬Ä¿±ê¾ØĞÎ¡£
-*  \param [in]	nDestHeight	¸ß¶È£¬Ä¿±ê¾ØĞÎ¡£
-*  \param [in]	xSrc	x×ø±ê£¬Ô´¾ØĞÎµÄ×óÉÏ½Ç¡£
-*  \param [in]	ySrc	y×ø±ê£¬Ô´¾ØĞÎµÄ×óÉÏ½Ç¡£
-*  \param [in]	nSrcWidth	¿í¶È£¬Ô´¾ØĞÎ¡£
-*  \param [in]	nSrcHeight	¸ß¶È£¬Ô´¾ØĞÎ¡£
+*  \brief åœ¨ç›®æ ‡DCä¸Šçš„æŒ‡å®šåŒºåŸŸç»˜åˆ¶æœ¬å›¾åƒçš„å…¨éƒ¨æˆ–å±€éƒ¨
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \param [in]	hDestDC	ç›®æ ‡DCçš„å¥æŸ„
+*  \param [in]	xDest	xåæ ‡ï¼Œç›®æ ‡çŸ©å½¢çš„å·¦ä¸Šè§’ã€‚
+*  \param [in]	yDest	yåæ ‡ï¼Œç›®æ ‡çŸ©å½¢çš„å·¦ä¸Šè§’ã€‚
+*  \param [in]	nDestWidth	å®½åº¦ï¼Œç›®æ ‡çŸ©å½¢ã€‚
+*  \param [in]	nDestHeight	é«˜åº¦ï¼Œç›®æ ‡çŸ©å½¢ã€‚
+*  \param [in]	xSrc	xåæ ‡ï¼ŒæºçŸ©å½¢çš„å·¦ä¸Šè§’ã€‚
+*  \param [in]	ySrc	yåæ ‡ï¼ŒæºçŸ©å½¢çš„å·¦ä¸Šè§’ã€‚
+*  \param [in]	nSrcWidth	å®½åº¦ï¼ŒæºçŸ©å½¢ã€‚
+*  \param [in]	nSrcHeight	é«˜åº¦ï¼ŒæºçŸ©å½¢ã€‚
 *  \retval  	
 */
 MVGIGE_API bool __stdcall MVImageDrawEx(void* hImage, HDC hDestDC, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight);
 
 /*!
-*  \brief ÔÚÄ¿±êDCÉÏµÄÖ¸¶¨Î»ÖÃ1:1»æÖÆ±¾Í¼Ïñ
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \param [in]	hDestDC	Ä¿±êDC
-*  \param [in]	xDest	Í¼Ïñ»æÖÆµÄÆğÊ¼Ë®Æ½×ø±ê
-*  \param [in]	yDest	Í¼Ïñ»æÖÆµÄÆğÊ¼´¹Ö±×ø±ê
+*  \brief åœ¨ç›®æ ‡DCä¸Šçš„æŒ‡å®šä½ç½®1:1ç»˜åˆ¶æœ¬å›¾åƒ
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \param [in]	hDestDC	ç›®æ ‡DC
+*  \param [in]	xDest	å›¾åƒç»˜åˆ¶çš„èµ·å§‹æ°´å¹³åæ ‡
+*  \param [in]	yDest	å›¾åƒç»˜åˆ¶çš„èµ·å§‹å‚ç›´åæ ‡
 *  \retval  	
 */
 MVGIGE_API bool __stdcall MVImageDraw(void* hImage, HDC hDestDC, int xDest, int yDest);
 
 #ifndef _MSC_VER
 /*!
-*  \brief ÔÚÄ¿±ê´°ÌåÉÏµÄÖ¸¶¨Î»ÖÃ1:1»æÖÆ±¾Í¼Ïñ
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \param [in]	hWnd	Ä¿±ê´°Ìå
-*  \param [in]	xDest	Í¼Ïñ»æÖÆµÄÆğÊ¼Ë®Æ½×ø±ê
-*  \param [in]	yDest	Í¼Ïñ»æÖÆµÄÆğÊ¼´¹Ö±×ø±ê
+*  \brief åœ¨ç›®æ ‡çª—ä½“ä¸Šçš„æŒ‡å®šä½ç½®1:1ç»˜åˆ¶æœ¬å›¾åƒ
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \param [in]	hWnd	ç›®æ ‡çª—ä½“
+*  \param [in]	xDest	å›¾åƒç»˜åˆ¶çš„èµ·å§‹æ°´å¹³åæ ‡
+*  \param [in]	yDest	å›¾åƒç»˜åˆ¶çš„èµ·å§‹å‚ç›´åæ ‡
 *  \retval  	
 */
 MVGIGE_API bool __stdcall MVImageDrawHwnd(void* hImage, HWND hWnd, int xDest, int yDest);
 
 /*!
-*  \brief ÔÚÄ¿±ê´°ÌåÉÏµÄÖ¸¶¨ÇøÓò»æÖÆ±¾Í¼ÏñµÄÈ«²¿»ò¾Ö²¿
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \param [in]	hWnd	Ä¿±ê´°ÌåµÄ¾ä±ú
-*  \param [in]	xDest	x×ø±ê£¬Ä¿±ê¾ØĞÎµÄ×óÉÏ½Ç¡£
-*  \param [in]	yDest	y×ø±ê£¬Ä¿±ê¾ØĞÎµÄ×óÉÏ½Ç¡£
-*  \param [in]	nDestWidth	¿í¶È£¬Ä¿±ê¾ØĞÎ¡£
-*  \param [in]	nDestHeight	¸ß¶È£¬Ä¿±ê¾ØĞÎ¡£
-*  \param [in]	xSrc	x×ø±ê£¬Ô´¾ØĞÎµÄ×óÉÏ½Ç¡£
-*  \param [in]	ySrc	y×ø±ê£¬Ô´¾ØĞÎµÄ×óÉÏ½Ç¡£
-*  \param [in]	nSrcWidth	¿í¶È£¬Ô´¾ØĞÎ¡£
-*  \param [in]	nSrcHeight	¸ß¶È£¬Ô´¾ØĞÎ¡£
+*  \brief åœ¨ç›®æ ‡çª—ä½“ä¸Šçš„æŒ‡å®šåŒºåŸŸç»˜åˆ¶æœ¬å›¾åƒçš„å…¨éƒ¨æˆ–å±€éƒ¨
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \param [in]	hWnd	ç›®æ ‡çª—ä½“çš„å¥æŸ„
+*  \param [in]	xDest	xåæ ‡ï¼Œç›®æ ‡çŸ©å½¢çš„å·¦ä¸Šè§’ã€‚
+*  \param [in]	yDest	yåæ ‡ï¼Œç›®æ ‡çŸ©å½¢çš„å·¦ä¸Šè§’ã€‚
+*  \param [in]	nDestWidth	å®½åº¦ï¼Œç›®æ ‡çŸ©å½¢ã€‚
+*  \param [in]	nDestHeight	é«˜åº¦ï¼Œç›®æ ‡çŸ©å½¢ã€‚
+*  \param [in]	xSrc	xåæ ‡ï¼ŒæºçŸ©å½¢çš„å·¦ä¸Šè§’ã€‚
+*  \param [in]	ySrc	yåæ ‡ï¼ŒæºçŸ©å½¢çš„å·¦ä¸Šè§’ã€‚
+*  \param [in]	nSrcWidth	å®½åº¦ï¼ŒæºçŸ©å½¢ã€‚
+*  \param [in]	nSrcHeight	é«˜åº¦ï¼ŒæºçŸ©å½¢ã€‚
 *  \retval  	
 */
 MVGIGE_API bool __stdcall MVImageDrawHwndEx( void* hImage, HWND hWnd, int xDest, int yDest, int nDestWidth, int nDestHeight, int xSrc, int ySrc, int nSrcWidth, int nSrcHeight );
 
 #endif
 /*!
-*  \brief »ñÈ¡Í¼ÏñµÄDC£¬¿ÉÓÃÓÚÔÚÍ¼ÏñÉÏ»æÖÆÍ¼ĞÎ¡£
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \retval  Í¼ÏñDC
-*	\note	Ê¹ÓÃ½áÊøºóÓ¦µ÷ÓÃReleaseDC½øĞĞÊÍ·Å
+*  \brief è·å–å›¾åƒçš„DCï¼Œå¯ç”¨äºåœ¨å›¾åƒä¸Šç»˜åˆ¶å›¾å½¢ã€‚
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \retval  å›¾åƒDC
+*	\note	ä½¿ç”¨ç»“æŸååº”è°ƒç”¨ReleaseDCè¿›è¡Œé‡Šæ”¾
 */
 MVGIGE_API HDC __stdcall MVImageGetDC(void* hImage);
 
 /*!
-*  \brief ÊÍ·ÅÊ¹ÓÃGetDC»ñÈ¡µÄDC
-*  \param [in]	hImage	Ïà»ú¾ä±ú
+*  \brief é‡Šæ”¾ä½¿ç”¨GetDCè·å–çš„DC
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
 */
 MVGIGE_API void __stdcall MVImageReleaseDC(void* hImage);
 
 /*!
-*  \brief ±£´æÍ¼Ïñ
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \param [in]	pszFileName	ÎÄ¼şÃû¡£ÎÄ¼şÀàĞÍ¿ÉÒÔÎª.bmp,.jpg,.tif,.raw(½öÖ§³ÖÎ»ÉîÎª16Î»µÄÍ¼Ïñ)
+*  \brief ä¿å­˜å›¾åƒ
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \param [in]	pszFileName	æ–‡ä»¶åã€‚æ–‡ä»¶ç±»å‹å¯ä»¥ä¸º.bmp,.jpg,.tif,.raw(ä»…æ”¯æŒä½æ·±ä¸º16ä½çš„å›¾åƒ)
 *  \retval  	
-*  \note 16Î»ºÍ48Î»Í¼Ïñ½öÔÚ±£´æÎª.tif¸ñÊ½Ê±£¬±£Áô16Î»»ò48Î»Î»Éî¡£±£´æÎªbmp,jpg¾ù±»×ª»»Îª8Î»»ò24Î»Í¼Ïñ±£´æ¡£
+*  \note 16ä½å’Œ48ä½å›¾åƒä»…åœ¨ä¿å­˜ä¸º.tifæ ¼å¼æ—¶ï¼Œä¿ç•™16ä½æˆ–48ä½ä½æ·±ã€‚ä¿å­˜ä¸ºbmp,jpgå‡è¢«è½¬æ¢ä¸º8ä½æˆ–24ä½å›¾åƒä¿å­˜ã€‚
 */
 MVGIGE_API int __stdcall MVImageSave(void* hImage, LPCSTR pszFileName);
 
 /*!
-*  \brief ´ÓÎÄ¼ş¶ÁÈ¡Í¼Ïñ
-*  \param [in]	hImage	Ïà»ú¾ä±ú
-*  \param [in]	pszFileName	ÎÄ¼şÃû¡£Ö§³ÖµÄÎÄ¼şÀàĞÍÎª.bmp,.jpg,.tif,.raw
+*  \brief ä»æ–‡ä»¶è¯»å–å›¾åƒ
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
+*  \param [in]	pszFileName	æ–‡ä»¶åã€‚æ”¯æŒçš„æ–‡ä»¶ç±»å‹ä¸º.bmp,.jpg,.tif,.raw
 *  \retval  	
 */
 MVGIGE_API int __stdcall MVImageLoad( void* hImage,LPCSTR pszFileName );
 
 /*!
-*  \brief ÊÍ·ÅÍ¼Ïñ×ÊÔ´
-*  \param [in]	hImage	Ïà»ú¾ä±ú
+*  \brief é‡Šæ”¾å›¾åƒèµ„æº
+*  \param [in]	hImage	ç›¸æœºå¥æŸ„
 *  \retval  	
 */
 MVGIGE_API void __stdcall MVImageDestroy(void* hImage);
