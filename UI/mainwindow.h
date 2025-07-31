@@ -24,6 +24,7 @@ public slots:
 signals:
     // 收到相机QIMAGE通知YOLO检测
     void operateYOLO(const QImage& image);
+    void checkROI();
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -42,6 +43,7 @@ private slots:
     void setScaledPixmap(QLabel* label, const QPixmap& pixmap);
     void onImageShow(const QImage& image);
     void onErrorShow(const QString& error);
+    void onRoiShow(const cv::Mat& image);
 
     void on_radioButton_toggled(bool checked);
 

@@ -18,8 +18,10 @@ class YOLO : public QObject{
     Q_OBJECT
 public slots:
     void                 pipeline(const QImage& image);
+    void                 needOcr();
 signals:
     void                 resReady(const QImage& image);
+    void                 roiReady(const cv::Mat& image);
 public:
     explicit YOLO(const std::string& engine_file_path);
     ~YOLO();
@@ -63,5 +65,7 @@ private:
 
     // 拿取路径文件拓展名用于决定构建方式
     std::string getFileExtension(const std::string& filepath);
+
+    bool mb_NeedOcr = false;
 };
 #endif // YOLO_H

@@ -22,13 +22,16 @@ MainWindow::MainWindow(QWidget *parent)
     // 显示默认界面，不打开相机
     //m_Camera->openCamera(m_Camera->getCameras().first());
     // 创建一个yolo对象
-    mp_Yolo = new YOLO("E:/Qt/repos/MailParser/model/mailmodelfp16.engine");// TODO
+    mp_Yolo = new YOLO("E:/Qt/repos/MailParser/model/yolov5s.engine");// TODO
     mp_Yolo->make_pipe(true);
     mp_Yolo->moveToThread(&YOLOThread);
     // 链接信号与槽
     connect(&YOLOThread,&QThread::finished,mp_Yolo,&QObject::deleteLater);
     connect(this,&MainWindow::operateYOLO,mp_Yolo,&YOLO::pipeline);
     connect(mp_Yolo,&YOLO::resReady,this,&MainWindow::showYOLORes);
+    connect(mp_Yolo,&YOLO::roiReady,this,&MainWindow::onRoiShow);
+    connect(this,&MainWindow::checkROI,mp_Yolo,&YOLO::needOcr);
+
     YOLOThread.start();
     ui->ButtonShot->setEnabled(true);
     ui->ButtonOpen->setEnabled(true);
@@ -111,6 +114,8 @@ void MainWindow::on_ButtonSave_clicked()
 
 void MainWindow::on_ButtonDetect_clicked()
 {
+    // 持续收到resReady发送的Qimage
+    emit checkROI();
 
 }
 void MainWindow::setScaledPixmap(QLabel* label, const QPixmap& pixmap)
@@ -153,6 +158,10 @@ void MainWindow::showYOLORes(const QImage& image)
     //ui->labelRes->setPixmap(QPixmap::fromImage(image));
 }
 
+void MainWindow::onRoiShow(const cv::Mat& image)
+{
+    setScaledPixmap(ui->label_3,QPixmap::fromImage(Converter::cvMatToQImage(image)));
+}
 
 
 void MainWindow::on_radioButton_toggled(bool checked)
