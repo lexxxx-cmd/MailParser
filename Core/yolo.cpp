@@ -216,7 +216,7 @@ void YOLO::make_pipe(bool warmup)
     }
 
     if (warmup) {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             for (auto& bindings : this->input_bindings) {
                 size_t size  = bindings.size * bindings.dsize;
                 void*  h_ptr = malloc(size);

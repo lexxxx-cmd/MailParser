@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 显示默认界面，不打开相机
     //m_Camera->openCamera(m_Camera->getCameras().first());
     // 创建一个yolo对象
-    mp_Yolo = new YOLO("E:/Qt/repos/MailParser/model/yolov5s.engine");// TODO
+    mp_Yolo = new YOLO("E:/Qt/repos/MailParser/model/mailmodelfp16.engine");// TODO
     mp_Yolo->make_pipe(true);
     mp_Yolo->moveToThread(&YOLOThread);
     // 链接信号与槽
