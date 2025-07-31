@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <qlabel.h>
 
 
 #include "../Core/mvcamera.h"
@@ -38,6 +39,7 @@ private slots:
     void on_ButtonDetect_clicked();
 
     // 从相机类收到信号（显示或错误）
+    void setScaledPixmap(QLabel* label, const QPixmap& pixmap);
     void onImageShow(const QImage& image);
     void onErrorShow(const QString& error);
 

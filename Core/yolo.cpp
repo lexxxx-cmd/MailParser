@@ -119,7 +119,7 @@ bool YOLO::buildFromOnnx(const std::string& onnx_path)
     this->config->setMemoryPoolLimit(nvinfer1::MemoryPoolType::kWORKSPACE, 1U << 30); // 1GB
 
     // 设置精度模式
-    // this->config->setFlag(nvinfer1::BuilderFlag::kFP16);
+    this->config->setFlag(nvinfer1::BuilderFlag::kFP16);
 
     this->parser
         = nvonnxparser::createParser(*this->network, this->gLogger);
@@ -144,7 +144,7 @@ bool YOLO::buildFromOnnx(const std::string& onnx_path)
     if (this->engine)
     {
         // 保存
-        std::ofstream file("E:/Qt/repos/MailParser/model/model.engine",std::ios::binary);// TODO:改为变量
+        std::ofstream file("E:/Qt/repos/MailParser/model/mailmodelfp16.engine",std::ios::binary);// TODO:改为变量
         file.write(reinterpret_cast<const char*>(serializedModel->data()), serializedModel->size());
         file.close();
     }
@@ -380,6 +380,11 @@ void YOLO::postprocess(std::vector<Object>& objs)
     std::vector<cv::Rect_<float>> bboxes;
     std::vector<float> scores;
     std::vector<int> indices;
+    auto& dw       = this->pparam.dw;
+    auto& dh       = this->pparam.dh;
+    auto& width    = this->pparam.width;
+    auto& height   = this->pparam.height;
+    auto& ratio    = this->pparam.ratio;
     /*
     int*  num_dets = static_cast<int*>(this->host_ptrs[0]);
     auto* boxes    = static_cast<float*>(this->host_ptrs[1]);
@@ -414,11 +419,12 @@ void YOLO::postprocess(std::vector<Object>& objs)
     // TODO：发送信号至UI？
 */
     float* output = static_cast<float*>(this->host_ptrs[0]);
-    int num_anchors = this->output_bindings[0].size / 85;
+    int num_anchors = this->output_bindings[0].dims.d[1];
+    int obj_dims = this->output_bindings[0].dims.d[2];
 
     for (int i = 0; i < num_anchors; i++) {
         // 每个框开头地址
-        float* anchor = output + i * 85;
+        float* anchor = output + i * obj_dims;
         float conf = anchor[4];
         if (conf < 0.25) {
             continue;
@@ -428,7 +434,7 @@ void YOLO::postprocess(std::vector<Object>& objs)
         float max_class_prob = 0.0;
         int max_class_id = 0;
 
-        for (int j = 5; j < 85; j++) {
+        for (int j = 5; j < obj_dims; j++) {
             if (anchor[j] > max_class_prob) {
                 max_class_prob = anchor[j];
                 max_class_id = j - 5;
@@ -445,8 +451,26 @@ void YOLO::postprocess(std::vector<Object>& objs)
         if (final_score < 0.25) {
             continue;
         }
+        cx -= dw;
+        cy -= dh;
+
+        // 2. 缩放到原始图像尺寸
+        cx *= ratio;
+        cy *= ratio;
+        w *= ratio;
+        h *= ratio;
+
+        // 3. 转换为左上角坐标(x,y)
+        float x = cx - w/2;
+        float y = cy - h/2;
+
+        // 4. 边界保护
+        x = std::clamp(x, 0.0f, width);
+        y = std::clamp(y, 0.0f, height);
+        w = std::clamp(w, 0.0f, width - x);
+        h = std::clamp(h, 0.0f, height - y);
         // 存储候选框
-        bboxes.push_back(cv::Rect(cx, cy, w, h));
+        bboxes.push_back(cv::Rect_<float>(x, y, w, h));
         scores.push_back(final_score);
         indices.push_back(max_class_id);
 
@@ -504,8 +528,8 @@ void YOLO::pipeline(const QImage& image)
     this->copy_from_Mat(mat, size);
     auto start = std::chrono::system_clock::now();
     this->infer();
-    auto end = std::chrono::system_clock::now();
     this->postprocess(objs);
+    auto end = std::chrono::system_clock::now();
     this->draw_objects(mat, res, objs);
     auto tc = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.;
     qDebug() << "time: " << tc;
