@@ -20,7 +20,7 @@ void MVCamera::initial() {
 
     TriggerModeEnums enumMode;
     MVGetTriggerMode(m_hCam, &enumMode);
-    MVSetHeartbeatTimeout(m_hCam,3000);
+    MVSetHeartbeatTimeout(m_hCam,5000);
     //触发模式
     if (enumMode != TriggerMode_Off)
     {
