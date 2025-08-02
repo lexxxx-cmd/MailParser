@@ -10,16 +10,38 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    cudaSetDevice(0);
     ui->setupUi(this);
-    //创建一个相机对象
+    // 创建一个相机对象
     m_Camera = std::make_unique<MVCamera>(parent);
-    //设置label最大宽高为Preview的最大值
+    // 设置label最大宽高为Preview的最大值
     ui->label->setMaximumSize(640,480);
-    //链接信号与槽
+    // 链接信号与槽
     QObject::connect(m_Camera.get(),&MVCamera::imageReady,this,&MainWindow::onImageShow);
     QObject::connect(m_Camera.get(),&MVCamera::errorOccur,this,&MainWindow::onErrorShow);
-    //显示默认界面，不打开相机
+    // 显示默认界面，不打开相机
     //m_Camera->openCamera(m_Camera->getCameras().first());
+    // 创建一个yolo对象
+    mp_Yolo = new YOLO("E:/Qt/repos/MailParser/model/yolov5s.engine");// TODO
+    mp_Yolo->make_pipe(true);
+    mp_Yolo->moveToThread(&YOLOThread);
+    // 链接信号与槽
+    connect(&YOLOThread,&QThread::finished,mp_Yolo,&QObject::deleteLater);
+    connect(this,&MainWindow::operateYOLO,mp_Yolo,&YOLO::pipeline);
+    connect(mp_Yolo,&YOLO::resReady,this,&MainWindow::showYOLORes);
+    connect(mp_Yolo,&YOLO::roiReady,this,&MainWindow::onRoiShow);
+    connect(this,&MainWindow::checkROI,mp_Yolo,&YOLO::needOcr);
+
+    YOLOThread.start();
+    // 创建一个ocrclient对象
+    mp_OcrClient = new OcrClient();
+    mp_OcrClient->moveToThread(&OcrClientThread);
+    // 链接信号与槽
+    connect(&OcrClientThread,&QThread::finished,mp_OcrClient,&QObject::deleteLater);
+    connect(mp_Yolo,&YOLO::roiReady,mp_OcrClient,&OcrClient::sendOCRRequest);
+    connect(mp_OcrClient,&OcrClient::ocrResReady,this,&MainWindow::onOcrshow);
+
+    OcrClientThread.start();
 
     ui->ButtonShot->setEnabled(true);
     ui->ButtonOpen->setEnabled(true);
@@ -31,6 +53,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    OcrClientThread.quit();
+    OcrClientThread.wait();
+    YOLOThread.quit();
+    YOLOThread.wait();
     delete ui;
 }
 
@@ -100,12 +126,35 @@ void MainWindow::on_ButtonSave_clicked()
 
 void MainWindow::on_ButtonDetect_clicked()
 {
+    // 持续收到resReady发送的Qimage
+    emit checkROI();
 
 }
+void MainWindow::setScaledPixmap(QLabel* label, const QPixmap& pixmap)
+{
+    // 获取QLabel的可用尺寸
+    QSize labelSize = label->size();
 
+    // 计算保持宽高比的缩放尺寸
+    QSize scaledSize = pixmap.size();
+    scaledSize.scale(labelSize, Qt::KeepAspectRatio);
+
+    // 缩放图片
+    QPixmap scaledPixmap = pixmap.scaled(
+        scaledSize,
+        Qt::IgnoreAspectRatio,
+        Qt::SmoothTransformation
+        );
+
+    // 设置图片
+    label->setPixmap(scaledPixmap);
+}
 void MainWindow::onImageShow(const QImage& image)
 {
-    ui->label->setPixmap(QPixmap::fromImage(image));
+    setScaledPixmap(ui->label,QPixmap::fromImage(image));
+    //ui->label->setPixmap(QPixmap::fromImage(image));
+    // 同时发送给YOLO线程
+    emit operateYOLO(image);
 }
 
 void MainWindow::onErrorShow(const QString& error)
@@ -114,4 +163,33 @@ void MainWindow::onErrorShow(const QString& error)
     if (t_Re == QMessageBox::Yes) return;
 }
 
+void MainWindow::showYOLORes(const QImage& image)
+{
+    //qDebug() << "showRes...";
+    setScaledPixmap(ui->labelRes,QPixmap::fromImage(image));
+    //ui->labelRes->setPixmap(QPixmap::fromImage(image));
+}
+
+void MainWindow::onRoiShow(const cv::Mat& image)
+{
+    setScaledPixmap(ui->label_3,QPixmap::fromImage(Converter::cvMatToQImage(image)));
+}
+
+void MainWindow::onOcrshow()
+{
+
+}
+
+void MainWindow::on_radioButton_toggled(bool checked)
+{
+    ui->labelRes->setVisible(false);
+    ui->label->setVisible(true);
+}
+
+
+void MainWindow::on_radioButton_2_toggled(bool checked)
+{
+    ui->label->setVisible(false);
+    ui->labelRes->setVisible(true);
+}
 
