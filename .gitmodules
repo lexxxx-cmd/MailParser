@@ -1,0 +1,9 @@
+[submodule "Test/ocr_client/cpp-httplib"]
+	path = Test/ocr_client/cpp-httplib
+	url = https://github.com/Huiyicc/cpp-httplib
+[submodule "Test/ocr_client/json"]
+	path = Test/ocr_client/json
+	url = https://github.com/nlohmann/json
+[submodule "Test/ocr_client/base64"]
+	path = Test/ocr_client/base64
+	url = https://github.com/tobiaslocker/base64
