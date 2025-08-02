@@ -7,6 +7,7 @@
 
 #include "../Core/mvcamera.h"
 #include "../Core/yolo.h"
+#include "../Core/ocrclient.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,6 +19,7 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
     QThread YOLOThread;
+    QThread OcrClientThread;
 public slots:
     // 收到通知显示结果
     void showYOLORes(const QImage& image);
@@ -44,6 +46,7 @@ private slots:
     void onImageShow(const QImage& image);
     void onErrorShow(const QString& error);
     void onRoiShow(const cv::Mat& image);
+    void onOcrshow();
 
     void on_radioButton_toggled(bool checked);
 
@@ -55,5 +58,6 @@ private:
     std::unique_ptr<MVCamera> m_Camera;
     // YOLO 指针
     YOLO* mp_Yolo = nullptr;
+    OcrClient* mp_OcrClient = nullptr;
 };
 #endif // MAINWINDOW_H

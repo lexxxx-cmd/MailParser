@@ -205,10 +205,10 @@ private:
         const auto& box1 = boxes[i];
         const auto& box2 = boxes[j];
 
-        float x1 = std::max(box1.x, box2.x);
-        float y1 = std::max(box1.y, box2.y);
-        float x2 = std::min(box1.x + box1.width, box2.x + box2.width);
-        float y2 = std::min(box1.y + box1.height, box2.y + box2.height);
+        float x1 = (std::max)(box1.x, box2.x);
+        float y1 = (std::max)(box1.y, box2.y);
+        float x2 = (std::min)(box1.x + box1.width, box2.x + box2.width);
+        float y2 = (std::min)(box1.y + box1.height, box2.y + box2.height);
 
         if (x2 <= x1 || y2 <= y1) {
             return 0.0f;

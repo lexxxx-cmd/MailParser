@@ -33,6 +33,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this,&MainWindow::checkROI,mp_Yolo,&YOLO::needOcr);
 
     YOLOThread.start();
+    // 创建一个ocrclient对象
+    mp_OcrClient = new OcrClient();
+    mp_OcrClient->moveToThread(&OcrClientThread);
+    // 链接信号与槽
+    connect(&OcrClientThread,&QThread::finished,mp_OcrClient,&QObject::deleteLater);
+    connect(mp_Yolo,&YOLO::roiReady,mp_OcrClient,&OcrClient::sendOCRRequest);
+    connect(mp_OcrClient,&OcrClient::ocrResReady,this,&MainWindow::onOcrshow);
+
+    OcrClientThread.start();
+
     ui->ButtonShot->setEnabled(true);
     ui->ButtonOpen->setEnabled(true);
     ui->ButtonStop->setEnabled(false);
@@ -43,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    OcrClientThread.quit();
+    OcrClientThread.wait();
     YOLOThread.quit();
     YOLOThread.wait();
     delete ui;
@@ -163,6 +175,10 @@ void MainWindow::onRoiShow(const cv::Mat& image)
     setScaledPixmap(ui->label_3,QPixmap::fromImage(Converter::cvMatToQImage(image)));
 }
 
+void MainWindow::onOcrshow()
+{
+
+}
 
 void MainWindow::on_radioButton_toggled(bool checked)
 {

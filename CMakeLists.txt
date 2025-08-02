@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find Qt packages
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
+# 加网络
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network)
 
 # Set paths (configurable from command line)
 set(OpenCV_DIR "${CMAKE_SOURCE_DIR}/Thridparty/OpenCV/opencv/build" CACHE PATH "OpenCV installation directory")
@@ -60,6 +62,8 @@ qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 
 # Main executable
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    find_package(Qt6 REQUIRED COMPONENTS Core)
+
     qt_add_executable(MailParser
         MANUAL_FINALIZATION
         main.cpp
@@ -69,6 +73,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Core/yolo.h Core/yolo.cpp
         Core/common.hpp
         Core/filesystem.hpp
+        Core/ocrclient.cpp
     )
 else()
     add_executable(MailParser
@@ -98,6 +103,7 @@ target_link_libraries(MailParser PRIVATE
     ${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/lib/MVTickDlg.lib
 #    myplugins
 )
+target_link_libraries(MailParser PRIVATE Qt6::Core Qt6::Network)
 
 # Link directories
 target_link_directories(MailParser PRIVATE
