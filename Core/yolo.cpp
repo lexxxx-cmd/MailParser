@@ -147,7 +147,7 @@ bool YOLO::buildFromOnnx(const std::string& onnx_path)
     if (this->engine)
     {
         // 保存
-        std::ofstream file("E:/Qt/repos/MailParser/model/mailmodelfp16.engine",std::ios::binary);// TODO:改为变量
+        std::ofstream file("E:/Qt/repos/MailParser/model/fp16.engine",std::ios::binary);// TODO:改为变量
         file.write(reinterpret_cast<const char*>(serializedModel->data()), serializedModel->size());
         file.close();
     }
@@ -488,7 +488,7 @@ void YOLO::draw_objects(const cv::Mat&                                image,
         cv::putText(res, text, cv::Point(x, y + label_size.height), cv::FONT_HERSHEY_SIMPLEX, 0.4, {255, 255, 255}, 1);
     }
 }
-
+/*
 void YOLO::pipeline(const QImage& image)
 {
     // ui线程通知拿到图像数据转为mat格式
@@ -512,5 +512,49 @@ void YOLO::pipeline(const QImage& image)
         // 发送信号至ui及ocr线程
         emit roiReady(roi);
         mb_NeedOcr = false;
+    }
+}
+*/
+void YOLO::pipeline(const QImage& image)
+{
+
+    {
+        QMutexLocker locker(&imageMutex);
+        latestImage = image.copy();
+    }
+
+    if(processingFlag.testAndSetOrdered(0,1)) {
+        QImage img;
+        {
+            QMutexLocker locker(&imageMutex);
+            img = latestImage.copy();
+        }
+
+        // ui线程通知拿到图像数据转为mat格式
+        cv::Mat res;
+        cv::Mat mat = Converter::QImage2Mat(img);
+        cv::Size            size = cv::Size{640, 640};
+        objs.clear();
+        this->copy_from_Mat(mat, size);
+        auto start = std::chrono::system_clock::now();
+        this->infer();
+        this->postprocess(objs);
+        auto end = std::chrono::system_clock::now();
+        this->draw_objects(mat, res, objs);
+        auto tc = (double)std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.;
+        // qDebug() << "time: " << tc;
+        emit resReady(Converter::cvMatToQImage(res));
+
+        // 打包发送图像与rect数据？或者用一个bool变量来控制是否发送至ROI的ui以及ocr线程？
+        if (mb_NeedOcr && !objs.empty()) {
+            cv::Mat roi = mat(objs[0].rect);
+            // 发送信号至ui及ocr线程
+            emit roiReady(roi);
+            mb_NeedOcr = false;
+        }
+
+        processingFlag = 0;
+    } else {
+        qDebug() << "discard one";
     }
 }

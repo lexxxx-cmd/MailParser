@@ -15,19 +15,20 @@ MainWindow::MainWindow(QWidget *parent)
     // 创建一个相机对象
     m_Camera = std::make_unique<MVCamera>(parent);
     // 设置label最大宽高为Preview的最大值
-    ui->label->setMaximumSize(640,480);
+    // ui->label->setMaximumSize(640,480);
     // 链接信号与槽
     QObject::connect(m_Camera.get(),&MVCamera::imageReady,this,&MainWindow::onImageShow);
     QObject::connect(m_Camera.get(),&MVCamera::errorOccur,this,&MainWindow::onErrorShow);
     // 显示默认界面，不打开相机
     //m_Camera->openCamera(m_Camera->getCameras().first());
     // 创建一个yolo对象
-    mp_Yolo = new YOLO("E:/Qt/repos/MailParser/model/yolov5s.engine");// TODO
+    mp_Yolo = new YOLO("E:/Qt/repos/MailParser/model/fp16.engine");// TODO
     mp_Yolo->make_pipe(true);
     mp_Yolo->moveToThread(&YOLOThread);
     // 链接信号与槽
     connect(&YOLOThread,&QThread::finished,mp_Yolo,&QObject::deleteLater);
-    connect(this,&MainWindow::operateYOLO,mp_Yolo,&YOLO::pipeline);
+    // connect(this,&MainWindow::operateYOLO,mp_Yolo,&YOLO::pipeline);
+    QObject::connect(m_Camera.get(),&MVCamera::imageReady,mp_Yolo,&YOLO::pipeline);
     connect(mp_Yolo,&YOLO::resReady,this,&MainWindow::showYOLORes);
     connect(mp_Yolo,&YOLO::roiReady,this,&MainWindow::onRoiShow);
     connect(this,&MainWindow::checkROI,mp_Yolo,&YOLO::needOcr);
@@ -40,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&OcrClientThread,&QThread::finished,mp_OcrClient,&QObject::deleteLater);
     connect(mp_Yolo,&YOLO::roiReady,mp_OcrClient,&OcrClient::sendOCRRequest);
     connect(mp_OcrClient,&OcrClient::ocrResReady,this,&MainWindow::onOcrshow);
+    connect(mp_OcrClient,&OcrClient::errorOccur,this,&MainWindow::onErrorShow);
 
     OcrClientThread.start();
 
@@ -175,9 +177,9 @@ void MainWindow::onRoiShow(const cv::Mat& image)
     setScaledPixmap(ui->label_3,QPixmap::fromImage(Converter::cvMatToQImage(image)));
 }
 
-void MainWindow::onOcrshow()
+void MainWindow::onOcrshow(const QString& ocr)
 {
-
+    ui->label_2->setText(ocr);
 }
 
 void MainWindow::on_radioButton_toggled(bool checked)

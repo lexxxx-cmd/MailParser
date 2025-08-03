@@ -13,6 +13,7 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
+#include <QMutex>
 using namespace det;
 class YOLO : public QObject{
     Q_OBJECT
@@ -62,6 +63,10 @@ private:
     nvinfer1::IExecutionContext* context = nullptr;
     cudaStream_t                 stream  = nullptr;
     Logger                       gLogger{nvinfer1::ILogger::Severity::kERROR};
+
+    QAtomicInt processingFlag{0};  // 原子操作标志
+    QImage latestImage;            // 最新图像
+    QMutex imageMutex;            // 图像保护锁
 
     // 拿取路径文件拓展名用于决定构建方式
     std::string getFileExtension(const std::string& filepath);

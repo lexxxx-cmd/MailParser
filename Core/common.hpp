@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "opencv2/opencv.hpp"
 #include <qimage.h>
+#include <regex>
 
 #define CHECK(call)                                                                                                    \
 do {                                                                                                               \
@@ -189,6 +190,12 @@ inline int type_to_size(const nvinfer1::DataType& dataType)
     default:
         return 4;
     }
+}
+
+inline bool isChinese(const std::string& str) {
+    // 匹配中文字符的Unicode范围
+    std::regex chinese_regex("[\u4e00-\u9fa5]");
+    return std::regex_search(str, chinese_regex);
 }
 
 inline static float clamp(float val, float min, float max)

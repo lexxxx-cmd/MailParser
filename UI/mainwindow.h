@@ -46,7 +46,7 @@ private slots:
     void onImageShow(const QImage& image);
     void onErrorShow(const QString& error);
     void onRoiShow(const cv::Mat& image);
-    void onOcrshow();
+    void onOcrshow(const QString& ocr);
 
     void on_radioButton_toggled(bool checked);
 
