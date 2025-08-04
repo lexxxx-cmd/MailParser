@@ -26,7 +26,8 @@ public slots:
 signals:
     // 收到相机QIMAGE通知YOLO检测
     void operateYOLO(const QImage& image);
-    void checkROI();
+    void checkROI(const QImage& image);
+    //void checkROI();
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -46,7 +47,7 @@ private slots:
     void onImageShow(const QImage& image);
     void onErrorShow(const QString& error);
     void onRoiShow(const cv::Mat& image);
-    void onOcrshow();
+    void onOcrshow(const QString& ocr);
 
     void on_radioButton_toggled(bool checked);
 
@@ -59,5 +60,8 @@ private:
     // YOLO 指针
     YOLO* mp_Yolo = nullptr;
     OcrClient* mp_OcrClient = nullptr;
+
+    QImage curImg;
+    QTime startTime;
 };
 #endif // MAINWINDOW_H
