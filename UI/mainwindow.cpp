@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QFileDialog>
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -28,10 +29,13 @@ MainWindow::MainWindow(QWidget *parent)
     // 链接信号与槽
     connect(&YOLOThread,&QThread::finished,mp_Yolo,&QObject::deleteLater);
     // connect(this,&MainWindow::operateYOLO,mp_Yolo,&YOLO::pipeline);
-    QObject::connect(m_Camera.get(),&MVCamera::imageReady,mp_Yolo,&YOLO::pipeline);
+    // 1.connect(m_Camera.get(),&MVCamera::imageReady,mp_Yolo,&YOLO::pipeline);
+    // 1.connect(this,&MainWindow::checkROI,mp_Yolo,&YOLO::needOcr);
+    // 2.改为点击识别之后才识别
+    connect(this,&MainWindow::checkROI,mp_Yolo,&YOLO::pipeline);
     connect(mp_Yolo,&YOLO::resReady,this,&MainWindow::showYOLORes);
     connect(mp_Yolo,&YOLO::roiReady,this,&MainWindow::onRoiShow);
-    connect(this,&MainWindow::checkROI,mp_Yolo,&YOLO::needOcr);
+
 
     YOLOThread.start();
     // 创建一个ocrclient对象
@@ -129,7 +133,9 @@ void MainWindow::on_ButtonSave_clicked()
 void MainWindow::on_ButtonDetect_clicked()
 {
     // 持续收到resReady发送的Qimage
-    emit checkROI();
+    emit checkROI(curImg);
+    startTime = QTime::currentTime();
+    //ui->label_4->setNum(startTime.msecsTo(startTime));
 
 }
 void MainWindow::setScaledPixmap(QLabel* label, const QPixmap& pixmap)
@@ -153,10 +159,11 @@ void MainWindow::setScaledPixmap(QLabel* label, const QPixmap& pixmap)
 }
 void MainWindow::onImageShow(const QImage& image)
 {
+    curImg = image.copy();
     setScaledPixmap(ui->label,QPixmap::fromImage(image));
     //ui->label->setPixmap(QPixmap::fromImage(image));
     // 同时发送给YOLO线程
-    emit operateYOLO(image);
+    //emit checkROI(image);
 }
 
 void MainWindow::onErrorShow(const QString& error)
@@ -179,6 +186,7 @@ void MainWindow::onRoiShow(const cv::Mat& image)
 
 void MainWindow::onOcrshow(const QString& ocr)
 {
+    ui->label_6->setNum(startTime.msecsTo(QTime::currentTime()));
     ui->label_2->setText(ocr);
 }
 

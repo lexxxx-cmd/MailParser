@@ -449,7 +449,7 @@ void YOLO::postprocess(std::vector<Object>& objs)
 
     // NMS
 
-    std::vector<int> keep_indices = FastNMS::nms(bboxes, scores, 0.4, 0.5);
+    std::vector<int> keep_indices = FastNMS::nms(bboxes, scores, 0.3, 0.5);
 
     for (auto idx : keep_indices) {
         Object obj;
@@ -457,6 +457,9 @@ void YOLO::postprocess(std::vector<Object>& objs)
         obj.label = indices[idx];
         obj.prob = scores[idx];
         objs.push_back(obj);
+
+        // TODO 从配置之厄琉唯一框
+        // break;
     }
 }
 
@@ -545,12 +548,14 @@ void YOLO::pipeline(const QImage& image)
         // qDebug() << "time: " << tc;
         emit resReady(Converter::cvMatToQImage(res));
 
-        // 打包发送图像与rect数据？或者用一个bool变量来控制是否发送至ROI的ui以及ocr线程？
-        if (mb_NeedOcr && !objs.empty()) {
+        // 1.打包发送图像与rect数据？或者用一个bool变量来控制是否发送至ROI的ui以及ocr线程？
+        if (!objs.empty()) {
             cv::Mat roi = mat(objs[0].rect);
             // 发送信号至ui及ocr线程
             emit roiReady(roi);
             mb_NeedOcr = false;
+        } else {
+            std::cout << "obj为空。。";
         }
 
         processingFlag = 0;
