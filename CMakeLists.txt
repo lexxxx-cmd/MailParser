@@ -18,8 +18,9 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network)
 # Set paths (configurable from command line)
 set(OpenCV_DIR "${CMAKE_SOURCE_DIR}/Thridparty/OpenCV/opencv/build" CACHE PATH "OpenCV installation directory")
 set(TENSORRT_ROOT "E:/TensorRT/TensorRT-10.12.0.36" CACHE PATH "TensorRT installation directory")
-set(CUDA_TOOLKIT_ROOT_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.1" CACHE PATH "CUDA installation directory")
-
+set(CUDA_TOOLKIT_ROOT_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.1/bin")
+ set(CUDAToolkit_ROOT ${CUDA_TOOLKIT_ROOT_DIR})
+ set(CMAKE_CUDA_COMPILER "${CUDA_TOOLKIT_ROOT_DIR}/bin/nvcc.exe")
 # Find required packages
 find_package(OpenCV REQUIRED)
 find_package(CUDAToolkit REQUIRED)
