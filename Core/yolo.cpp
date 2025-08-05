@@ -25,7 +25,7 @@ YOLO::YOLO(const std::string& engine_file_path)
 #ifdef TRT_10
     this->num_bindings = this->engine->getNbIOTensors();
 #else
-    this->num_bindings = this->num_bindings = this->engine->getNbBindings();
+    this->num_bindings = this->engine->getNbBindings();
 #endif
 
     for (int i = 0; i < this->num_bindings; ++i) {
@@ -94,10 +94,12 @@ YOLO::~YOLO()
         CHECK(cudaFreeHost(ptr));
     }
 }
+
 void YOLO::needOcr()
 {
     if (!mb_NeedOcr) mb_NeedOcr = true;
 }
+
 bool YOLO::buildFromOnnx(const std::string& onnx_path)
 {
     // 按官方api来
@@ -106,8 +108,11 @@ bool YOLO::buildFromOnnx(const std::string& onnx_path)
     {
         return false;
     }
-
+#ifdef TRT_10
     this->network = this->builder->createNetworkV2(0);
+#else
+    this->network = this->builder->createNetworkV2(1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH));
+#endif
     if (!this->network)
     {
         return false;
@@ -118,20 +123,25 @@ bool YOLO::buildFromOnnx(const std::string& onnx_path)
     {
         return false;
     }
-    // 设置内存限制
+
+    // 设置内存限制 - 版本适配
+#ifdef TRT_10
     this->config->setMemoryPoolLimit(nvinfer1::MemoryPoolType::kWORKSPACE, 1U << 30); // 1GB
+#else
+    this->config->setMaxWorkspaceSize(1U << 30); // 1GB for TensorRT 8.x
+#endif
 
     // 设置精度模式
     this->config->setFlag(nvinfer1::BuilderFlag::kFP16);
 
-    this->parser
-        = nvonnxparser::createParser(*this->network, this->gLogger);
+    this->parser = nvonnxparser::createParser(*this->network, this->gLogger);
     if (!this->parser)
     {
         return false;
     }
+
     auto parsed = this->parser->parseFromFile(onnx_path.c_str(),
-                                        static_cast<int>(nvinfer1::ILogger::Severity::kWARNING));
+                                              static_cast<int>(nvinfer1::ILogger::Severity::kWARNING));
     if (!parsed) {
         // 输出解析错误
         for (int32_t i = 0; i < this->parser->getNbErrors(); ++i) {
@@ -139,25 +149,47 @@ bool YOLO::buildFromOnnx(const std::string& onnx_path)
         }
         return false;
     }
-    // 构建序列化网络
+
+    // 构建序列化网络 - 版本适配
+#ifdef TRT_10
     nvinfer1::IHostMemory* serializedModel = this->builder->buildSerializedNetwork(*this->network, *this->config);
+#else
+    this->engine = this->builder->buildEngineWithConfig(*this->network, *this->config);
+    if (!this->engine) {
+        return false;
+    }
+    nvinfer1::IHostMemory* serializedModel = this->engine->serialize();
+#endif
+
     if (!serializedModel) return false;
-    // 反序列化构建引擎
+
+    // 反序列化构建引擎 - TensorRT 10专用
+#ifdef TRT_10
     this->engine = this->runtime->deserializeCudaEngine(serializedModel->data(), serializedModel->size());
+#endif
+
     if (this->engine)
     {
         // 保存
-        std::ofstream file("E:/Qt/repos/MailParser/model/fp16.engine",std::ios::binary);// TODO:改为变量
+        std::ofstream file("E:/Qt/repos/MailParser/model/fp16.engine", std::ios::binary);// TODO:改为变量
         file.write(reinterpret_cast<const char*>(serializedModel->data()), serializedModel->size());
         file.close();
     }
 
-    // 清理资源 TODO:智能指针
+    // 清理资源 - 版本适配
+#ifdef TRT_10
     delete serializedModel;
     delete this->parser;
     delete this->config;
     delete this->network;
     delete this->builder;
+#else
+    serializedModel->destroy();
+    this->parser->destroy();
+    this->config->destroy();
+    this->network->destroy();
+    this->builder->destroy();
+#endif
 
     serializedModel = nullptr;
 
@@ -213,7 +245,7 @@ void YOLO::make_pipe(bool warmup)
         this->host_ptrs.push_back(h_ptr);
 
 #ifdef TRT_10
-        auto name = bindings.name.c_str(); // “output0”
+        auto name = bindings.name.c_str(); // "output0"
         this->context->setTensorAddress(name, d_ptr);
 #endif
     }
@@ -229,7 +261,7 @@ void YOLO::make_pipe(bool warmup)
             }
             this->infer();
         }
-        printf("model warmup 10 times\n");
+        printf("model warmup 5 times\n");
     }
 }
 
