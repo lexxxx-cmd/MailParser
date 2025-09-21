@@ -42,7 +42,11 @@ set(UI_SOURCES
     UI/preview.ui
     UI/control.h
     UI/control.cpp
-    UI/control.ui)
+    UI/control.ui
+    UI/result.h
+    UI/result.cpp
+    UI/result.ui
+    )
 
 # Include directories
 include_directories(
@@ -88,6 +92,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Core/ocrclient.cpp
         Core/roiselectorlabel.h
         Core/roiselectorlabel.cpp
+
     )
 else()
     add_executable(MailParser
