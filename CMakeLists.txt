@@ -33,6 +33,15 @@ message(STATUS "CUDA version: ${CUDAToolkit_VERSION}")
 message(STATUS "CUDA include: ${CUDAToolkit_INCLUDE_DIRS}")
 message(STATUS "CUDA libraries: ${CUDAToolkit_LIBRARY_DIR}")
 
+set(UI_SOURCES
+    UI/mainwindow.cpp
+    UI/mainwindow.h
+    UI/mainwindow.ui
+    UI/preview.cpp
+    UI/preview.h
+    UI/preview.ui
+    )
+
 # Include directories
 include_directories(
     #${PROJECT_SOURCE_DIR}/YOLO_src/
@@ -42,12 +51,12 @@ include_directories(
     ${TENSORRT_ROOT}/include
     ${CUDA_TOOLKIT_ROOT_DIR}/include
     ${CUDAToolkit_INCLUDE_DIRS}
+    ${UI_SOURCES}
 )
 
 # Source files
 #file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/YOLO_src/*.cpp ${PROJECT_SOURCE_DIR}/YOLO_src/*.cu)
 #file(GLOB_RECURSE PLUGIN_SRCS ${PROJECT_SOURCE_DIR}/YOLO_plugin/*.cu)
-file(GLOB_RECURSE UI_SOURCES UI/*.cpp UI/*.h UI/*.ui)
 
 # Plugin library
 
@@ -75,6 +84,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Core/common.hpp
         Core/filesystem.hpp
         Core/ocrclient.cpp
+        Core/roiselectorlabel.h
+        Core/roiselectorlabel.cpp
+        UI/control.h UI/control.cpp UI/control.ui
     )
 else()
     add_executable(MailParser
@@ -83,7 +95,10 @@ else()
 #        ${SRCS}
     )
 endif()
-
+target_include_directories(MailParser PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/Core
+    ${CMAKE_CURRENT_SOURCE_DIR}/UI
+)
 # Link libraries
 target_link_libraries(MailParser PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
