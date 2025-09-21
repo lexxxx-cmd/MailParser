@@ -46,6 +46,9 @@ set(UI_SOURCES
     UI/result.h
     UI/result.cpp
     UI/result.ui
+    UI/database.h
+    UI/database.cpp
+    UI/database.ui
     )
 
 # Include directories
