@@ -49,6 +49,9 @@ set(UI_SOURCES
     UI/database.h
     UI/database.cpp
     UI/database.ui
+    mainwidgetone.h
+    mainwidgetone.cpp
+    mainwidgetone.ui
     )
 
 # Include directories
@@ -85,7 +88,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
     qt_add_executable(MailParser
         MANUAL_FINALIZATION
-        main.cpp
+        main2.cpp
         ${UI_SOURCES}
  #       ${SRCS}
         Core/mvcamera.h Core/mvcamera.cpp
@@ -99,7 +102,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     )
 else()
     add_executable(MailParser
-        main.cpp
+        main2.cpp
         ${UI_SOURCES}
 #        ${SRCS}
     )
