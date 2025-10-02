@@ -49,9 +49,12 @@ set(UI_SOURCES
     UI/database.h
     UI/database.cpp
     UI/database.ui
-    mainwidgetone.h
-    mainwidgetone.cpp
-    mainwidgetone.ui
+
+
+
+
+
+
     )
 
 # Include directories
@@ -98,6 +101,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Core/ocrclient.cpp
         Core/roiselectorlabel.h
         Core/roiselectorlabel.cpp
+        UI/tabwidget.h UI/tabwidget.cpp UI/tabwidget.ui
+        UI/recognition.h UI/recognition.cpp UI/recognition.ui
+
 
     )
 else()

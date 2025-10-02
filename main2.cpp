@@ -1,4 +1,4 @@
-#include "UI/mainwidgetone.h"
+#include "UI/tabwidget.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    MainWidgetOne w;
+    TabWidget w;
     w.show();
     return a.exec();
 }
