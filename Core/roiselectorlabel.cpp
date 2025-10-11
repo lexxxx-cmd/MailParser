@@ -6,6 +6,17 @@ ROISelectorLabel::ROISelectorLabel(QWidget *parent) : QLabel(parent)
     m_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
 }
 
+QRectF ROISelectorLabel::mapWidgetRectToOriginal(const QRect &widgetRect)
+{
+    QSize labelSize = this->size();
+    // 1. 计算缩放后图片在控件中的偏移量
+    float RatioW = static_cast<float>(widgetRect.width()) / labelSize.width();
+    float RatioH = static_cast<float>(widgetRect.height()) / labelSize.height();
+    float RatioX = static_cast<float>(widgetRect.x()) / labelSize.width();
+    float RatioY = static_cast<float>(widgetRect.y()) / labelSize.height();
+    return QRectF(RatioX, RatioY, RatioW, RatioH);
+}
+
 // 这个公共槽函数是连接复选框的关键
 void ROISelectorLabel::setRoiSelectionEnabled(bool enabled)
 {
@@ -47,6 +58,6 @@ void ROISelectorLabel::mouseReleaseEvent(QMouseEvent *event)
     // 如果选区有效（大小不为0）
     if (selectedRect.width() > 0 && selectedRect.height() > 0) {
         // 发出信号，通知外部世界ROI已经选定
-        emit roiSelected(selectedRect);
+        emit roiSelected(mapWidgetRectToOriginal(selectedRect));
     }
 }

@@ -6,9 +6,31 @@ Control::Control(QWidget *parent)
     , ui(new Ui::Control)
 {
     ui->setupUi(this);
+
+    //开启摄像头信号
+    connect(ui->btnStartCamera, &QPushButton::clicked, this, &Control::captureRequested);
+    //关闭摄像头信号
+    connect(ui->btnStopCamera, &QPushButton::clicked, this, &Control::camStopRequested);
+    //拖拽ROI信号
+    connect(ui->chkEnableRoiDrag, &QCheckBox::toggled, this, &Control::DragROIRequested);
+    //切换mv相机信号
+    connect(ui->rbCameraMvGige, &QRadioButton::toggled, this, [=](){
+        emit changeCamRequested(0);
+    });
+    //切换opencv相机信号
+    connect(ui->rbCameraOpencv, &QRadioButton::toggled, this, [=](){
+        emit changeCamRequested(1);
+    });
 }
 
 Control::~Control()
 {
     delete ui;
+}
+
+void Control::setROI(const QRectF& roi) {
+    ui->lblRoiX->setText(QString::number(roi.x()));
+    ui->lblRoiY->setText(QString::number(roi.y()));
+    ui->lblRoiW->setText(QString::number(roi.width()));
+    ui->lblRoiH->setText(QString::number(roi.height()));
 }

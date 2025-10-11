@@ -3,6 +3,7 @@
 #include <QFileDialog>
 
 MVCamera::MVCamera(QObject *parent):QObject(parent),m_nCam(0),m_hCam(NULL),m_hPropDlg(NULL),m_hImg(NULL) {
+
     initial();
 }
 MVCamera::~MVCamera() {

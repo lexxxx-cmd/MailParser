@@ -45,14 +45,14 @@
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
-              <widget class="QRadioButton" name="radioButton">
+              <widget class="QRadioButton" name="rbCameraMvGige">
                <property name="text">
                 <string>MVGigE相机</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="radioButton_2">
+              <widget class="QRadioButton" name="rbCameraOpencv">
                <property name="text">
                 <string>OpenCV相机</string>
                </property>
@@ -68,14 +68,14 @@
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
-              <widget class="QRadioButton" name="radioButton_3">
+              <widget class="QRadioButton" name="rbOcrLocal">
                <property name="text">
                 <string>本地ocr</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="radioButton_7">
+              <widget class="QRadioButton" name="rbOcrRemote">
                <property name="text">
                 <string>远端ocr</string>
                </property>
@@ -117,7 +117,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit">
+              <widget class="QLineEdit" name="lblRoiX">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -134,7 +134,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_2">
+              <widget class="QLineEdit" name="lblRoiY">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -151,7 +151,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_3"/>
+              <widget class="QLineEdit" name="lblRoiW"/>
              </item>
              <item>
               <widget class="QLabel" name="label_6">
@@ -161,7 +161,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_4"/>
+              <widget class="QLineEdit" name="lblRoiH"/>
              </item>
              <item>
               <widget class="QLabel" name="label_7">
@@ -171,7 +171,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="comboBox">
+              <widget class="QComboBox" name="cmbImageRotation">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -187,7 +187,7 @@
            <widget class="QWidget" name="widget_2" native="true">
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
-              <widget class="QCheckBox" name="checkBox">
+              <widget class="QCheckBox" name="chkEnableRoiDrag">
                <property name="text">
                 <string>CheckBox</string>
                </property>
@@ -207,21 +207,21 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_2">
+              <widget class="QPushButton" name="btnApplyRoi">
                <property name="text">
                 <string>应用ROI</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_3">
+              <widget class="QPushButton" name="btnClearRoi">
                <property name="text">
                 <string>清除ROI</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_4">
+              <widget class="QPushButton" name="btnPreviewRotation">
                <property name="text">
                 <string>预览旋转</string>
                </property>
@@ -247,7 +247,7 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="lblSaveDirCaption">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -260,7 +260,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_2">
+           <widget class="QLabel" name="lblSaveDirPath">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -273,7 +273,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="btnSelectSaveDir">
             <property name="text">
              <string>选择目录</string>
             </property>
@@ -299,21 +299,21 @@
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
              <item row="1" column="0">
-              <widget class="QPushButton" name="pushButton_7">
+              <widget class="QPushButton" name="btnLoadOcrEngine">
                <property name="text">
-                <string>PushButton</string>
+                <string>加载OCR引擎</string>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QPushButton" name="pushButton_8">
+              <widget class="QPushButton" name="btnDetectCurrentFrame">
                <property name="text">
-                <string>PushButton</string>
+                <string>获取当前帧并检测</string>
                </property>
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QPushButton" name="pushButton_5">
+              <widget class="QPushButton" name="btnStartCamera">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -321,12 +321,12 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>PushButton</string>
+                <string>开启摄像头</string>
                </property>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QPushButton" name="pushButton_6">
+              <widget class="QPushButton" name="btnStopCamera">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -334,7 +334,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>PushButton</string>
+                <string>关闭摄像头</string>
                </property>
               </widget>
              </item>
@@ -358,7 +358,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="label_11">
+                 <widget class="QLabel" name="lblFpsValue">
                   <property name="text">
                    <string>TextLabel</string>
                   </property>
@@ -378,7 +378,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="label_12">
+                 <widget class="QLabel" name="lblProcessedCountValue">
                   <property name="text">
                    <string>TextLabel</string>
                   </property>
@@ -398,7 +398,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="label_13">
+                 <widget class="QLabel" name="lblDetectedCountValue">
                   <property name="text">
                    <string>TextLabel</string>
                   </property>

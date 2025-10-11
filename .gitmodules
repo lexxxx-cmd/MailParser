@@ -7,3 +7,6 @@
 [submodule "Test/ocr_client/base64"]
 	path = Test/ocr_client/base64
 	url = https://github.com/tobiaslocker/base64
+[submodule "Thridparty/yaml-cpp"]
+	path = Thridparty/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git

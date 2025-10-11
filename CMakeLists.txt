@@ -29,6 +29,7 @@ find_package(CUDAToolkit REQUIRED)
 set(CMAKE_CUDA_ARCHITECTURES 60 61 62 70 72 75 86 89 90)
 add_definitions(-DTRT_10)
 
+
 message(STATUS "CUDA version: ${CUDAToolkit_VERSION}")
 message(STATUS "CUDA include: ${CUDAToolkit_INCLUDE_DIRS}")
 message(STATUS "CUDA libraries: ${CUDAToolkit_LIBRARY_DIR}")
@@ -49,11 +50,12 @@ set(UI_SOURCES
     UI/database.h
     UI/database.cpp
     UI/database.ui
-
-
-
-
-
+    UI/tabwidget.h
+    UI/tabwidget.cpp
+    UI/tabwidget.ui
+    UI/recognition.h
+    UI/recognition.cpp
+    UI/recognition.ui
 
     )
 
@@ -67,6 +69,7 @@ include_directories(
     ${CUDA_TOOLKIT_ROOT_DIR}/include
     ${CUDAToolkit_INCLUDE_DIRS}
     ${UI_SOURCES}
+    ${PROJECT_SOURCE_DIR}/Thridparty/yaml-cpp/include
 )
 
 # Source files
@@ -101,8 +104,14 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Core/ocrclient.cpp
         Core/roiselectorlabel.h
         Core/roiselectorlabel.cpp
-        UI/tabwidget.h UI/tabwidget.cpp UI/tabwidget.ui
-        UI/recognition.h UI/recognition.cpp UI/recognition.ui
+        Core/configmanager.h
+        Core/configmanager.cpp
+        Core/icameraservice.hpp
+        Core/mvgigecamera.h
+        Core/mvgigecamera.cpp
+        Core/opencvcamera.h
+        Core/opencvcamera.cpp
+
 
 
     )
@@ -116,6 +125,7 @@ endif()
 target_include_directories(MailParser PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Core
     ${CMAKE_CURRENT_SOURCE_DIR}/UI
+    ${CMAKE_CURRENT_SOURCE_DIR}/Thridparty/yaml-cpp/include
 )
 # Link libraries
 target_link_libraries(MailParser PRIVATE
@@ -135,6 +145,8 @@ target_link_libraries(MailParser PRIVATE
     ${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/lib/MVCamProptySheet.lib
     ${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/lib/MVGigE.lib
     ${CMAKE_SOURCE_DIR}/Thridparty/SDK_Mircovision/lib/MVTickDlg.lib
+
+    ${CMAKE_SOURCE_DIR}/Thridparty/yaml-cpp/build/Debug/yaml-cppd.lib
 #    myplugins
 )
 target_link_libraries(MailParser PRIVATE Qt6::Core Qt6::Network)
@@ -145,7 +157,7 @@ target_link_directories(MailParser PRIVATE
     ${CUDA_TOOLKIT_ROOT_DIR}/lib/x64
     ${CUDAToolkit_LIBRARY_DIR}
 )
-
+target_compile_definitions(MailParser PRIVATE YAML_CPP_STATIC_DEFINE)
 # macOS/iOS specific settings
 if(${QT_VERSION} VERSION_LESS 6.1.0)
     set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.MailParser)

@@ -15,6 +15,15 @@ public:
     explicit Control(QWidget *parent = nullptr);
     ~Control();
 
+public slots:
+    void setROI(const QRectF& roi);
+
+signals:
+    void captureRequested();
+    void camStopRequested();
+    void DragROIRequested(bool checked);
+    void changeCamRequested(int index);//TODO 改为枚举类
+
 private:
     Ui::Control *ui;
 };

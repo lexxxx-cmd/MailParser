@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>1043</width>
+    <height>761</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -30,7 +30,7 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="Preview" name="widget_3" native="true">
+       <widget class="Preview" name="leftPanelWidget" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -40,7 +40,7 @@
        </widget>
       </item>
       <item>
-       <widget class="Control" name="widget_4" native="true">
+       <widget class="Control" name="rightConfigPanelWidget" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -53,7 +53,7 @@
     </widget>
    </item>
    <item>
-    <widget class="Result" name="widget" native="true">
+    <widget class="Result" name="bottomResultPanelWidget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
