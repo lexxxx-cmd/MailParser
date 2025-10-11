@@ -22,10 +22,15 @@ signals:
     void captureRequested();
     void camStopRequested();
     void DragROIRequested(bool checked);
+    void ApplyROIRequested(const QRectF& roi);
+    void ClearROIRequested();
+    void ShowROIRequested();
+
     void changeCamRequested(int index);//TODO 改为枚举类
 
 private:
     Ui::Control *ui;
+    QRectF getROI() const;
 };
 
 #endif // CONTROL_H

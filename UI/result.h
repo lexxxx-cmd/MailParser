@@ -2,6 +2,7 @@
 #define RESULT_H
 
 #include <QWidget>
+#include <qlabel.h>
 
 namespace Ui {
 class Result;
@@ -14,9 +15,15 @@ class Result : public QWidget
 public:
     explicit Result(QWidget *parent = nullptr);
     ~Result();
+public slots:
+    // 定义一个公共槽函数，用于接收并显示图片
+    void updateImage(const QImage &image);
+    void onOcrshow(const QString& ocr);
 
 private:
     Ui::Result *ui;
+
+    void setScaledPixmap(QLabel* label, const QPixmap& pixmap);
 };
 
 #endif // RESULT_H

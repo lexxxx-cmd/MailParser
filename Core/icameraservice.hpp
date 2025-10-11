@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QImage>
 #include <QMutex>
+#include <qdebug.h>
 
 // 我们将使用class而不是struct，因为它有方法。
 // 并且为了在智能指针中使用，我们进行前向声明。
@@ -40,12 +41,22 @@ public:
     virtual bool grabOnce() = 0;
     virtual bool saveImage(const QString& filepath) = 0;
 
+
     // --- 纯虚函数：定义标准相机状态查询接口 ---
 
     CameraState getState() const { return m_state; }
     CameraType getType() const { return m_type; }
     bool isGrabbing() const { return m_state == CameraState::Grabbing; }
-
+public slots:
+    void setROI(const QRectF& roi) {
+        ROI = roi;
+    }
+    void showROI() {
+        sendROIImg();
+    }
+    void resetROI() {
+        ROI = QRectF(0.0, 0.0, 1.0, 1.0);
+    }
 
 signals:
     /** @brief 当一帧新的图像准备好时发出此信号 */
@@ -56,11 +67,15 @@ signals:
 
     void stateChanged(CameraState state);
 
+    void roiImageReady(const QImage &roiImage);
+
 protected:
     int m_cameraIndex;
     CameraState m_state;
     CameraType m_type;
     QImage m_lastImage; // 缓存最后一帧
+
+    QRectF ROI{0.0,0.0,1.0,1.0};
 
     void setState(CameraState state) {
         if (m_state != state) {
@@ -68,6 +83,47 @@ protected:
             emit stateChanged(state);
         }
     };
+    void sendROIImg() {
+        if (m_lastImage.isNull()) {
+            qWarning() << "Last image is null, cannot send ROI image";
+            return;
+        }
+
+        if (!ROI.isValid() || ROI.isEmpty()) {
+            qWarning() << "ROI is invalid or empty";
+            return;
+        }
+
+        // 将比例值转换为实际像素坐标
+        int imgWidth = m_lastImage.width();
+        int imgHeight = m_lastImage.height();
+
+        QRect pixelROI(
+            qRound(ROI.x() * imgWidth),
+            qRound(ROI.y() * imgHeight),
+            qRound(ROI.width() * imgWidth),
+            qRound(ROI.height() * imgHeight)
+            );
+
+        // 确保ROI在有效范围内
+        pixelROI = pixelROI.intersected(QRect(0, 0, imgWidth, imgHeight));
+
+        if (pixelROI.isEmpty()) {
+            qWarning() << "Calculated ROI is empty or outside bounds";
+            return;
+        }
+
+        // 提取ROI区域
+        QImage roiImage = m_lastImage.copy(pixelROI);
+
+        if (roiImage.isNull()) {
+            qWarning() << "Failed to copy ROI from image";
+            return;
+        }
+
+        // 发射信号
+        emit roiImageReady(roiImage);
+    }
 };
 
 #endif // ICAMERASERVICE_H

@@ -5,19 +5,16 @@
 #include <opencv2/opencv.hpp>
 #include <QNetworkAccessManager>
 #include "common.hpp"
+#include "iocrservice.hpp"
 
-class OcrClient : public QObject
+class OcrClient : public IOcrService
 {
     Q_OBJECT
 public:
-    OcrClient();
-    ~OcrClient();
+    OcrClient(QObject *parent = nullptr);
+    ~OcrClient() override;
 public slots:
-    void sendOCRRequest(const cv::Mat& image);
-
-signals:
-    void ocrResReady(const QString& ocr);
-    void errorOccur(const QString& error);
+    void sendOCRRequest(const QImage& image) override;
 
 private:
     void handleResponse();

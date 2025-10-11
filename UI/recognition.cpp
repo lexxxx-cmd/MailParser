@@ -12,11 +12,13 @@ Recognition::Recognition(QWidget *parent)
     m_switchTimer->setSingleShot(true);
     m_switchTimer->setInterval(100); // 100ms防抖动
     initializeCameras(); // 初始化相机池
+    initializeOcrs();// 初始化ocr
     // 连接UI面板的切换信号
     //connect(ui->rightConfigPanelWidget, &Control::changeCamRequested, this, &Recognition::onSwitchCamera);
     //ROI
     QObject::connect(ui->rightConfigPanelWidget,&Control::DragROIRequested,ui->leftPanelWidget,&Preview::setRoiSelectionEnabled);
     QObject::connect(ui->leftPanelWidget, &Preview::roiSelected,ui->rightConfigPanelWidget,&Control::setROI);
+
 }
 
 void Recognition::onErrorShow(const QString& error)
@@ -77,6 +79,33 @@ void Recognition::initializeCameras()
     }
 }
 
+void Recognition::initializeOcrs()
+{
+    qInfo() << "Initializing ocrs...";
+
+    try {
+        mp_OcrClient = new OcrClient();
+        if (mp_OcrClient) {
+            mp_OcrClient->moveToThread(&m_OcrClientThread);
+            QObject::connect(&m_OcrClientThread, &QThread::finished,
+                             mp_OcrClient, &QObject::deleteLater);
+            m_OcrClientThread.start();
+            qInfo() << "local ocr initialized successfully";
+
+            connectOcrSignals(mp_OcrClient);
+        } else {
+            delete mp_OcrClient;
+            mp_OcrClient = nullptr;
+            qWarning() << "local ocr initialization failed";
+        }
+    } catch (const std::exception& e) {
+        qCritical() << "local ocr initialization exception:" << e.what();
+        if (mp_OcrClient) {
+            delete mp_OcrClient;
+            mp_OcrClient = nullptr;
+        }
+    }
+}
 
 void Recognition::stopCurrentCamera()
 {
@@ -125,6 +154,15 @@ void Recognition::connectCameraSignals(ICameraService* camera)
     connect(ui->rightConfigPanelWidget, &Control::camStopRequested,
             camera, &ICameraService::stopGrabbing);
 
+    connect(ui->rightConfigPanelWidget,&Control::ApplyROIRequested,camera,&ICameraService::setROI);
+
+    connect(ui->rightConfigPanelWidget,&Control::ClearROIRequested,camera,&ICameraService::resetROI);
+
+    connect(ui->rightConfigPanelWidget,&Control::ShowROIRequested,camera,&ICameraService::showROI);
+
+    connect(camera,&ICameraService::roiImageReady,this,&Recognition::sendROIRequest);
+    connect(this,&Recognition::sendOcrRequest,ui->bottomResultPanelWidget,&Result::updateImage);
+
     qDebug() << "Camera signals connected";
 }
 
@@ -139,6 +177,28 @@ void Recognition::disconnectCameraSignals(ICameraService* camera)
     qDebug() << "Camera signals disconnected";
 }
 
+void Recognition::connectOcrSignals(IOcrService* ocr)
+{
+    if (!ocr) return;
+
+    connect(ocr,&IOcrService::ocrResReady,ui->bottomResultPanelWidget,&Result::onOcrshow);
+    connect(ocr,&IOcrService::errorOccur,this, &Recognition::onErrorShow);
+    connect(this,&Recognition::sendOcrRequest,ocr,&IOcrService::sendOCRRequest);
+
+    qDebug() << "ocr signals connected";
+}
+
+void Recognition::disconnectOcrSignals(IOcrService* ocr)
+{
+    if (!ocr) return;
+
+    // 断开所有信号连接
+    disconnect(ocr, nullptr, nullptr, nullptr);
+    // disconnect(ui->rightConfigPanelWidget, nullptr, ocr, nullptr);
+
+    qDebug() << "ocr signals disconnected";
+}
+
 Recognition::~Recognition()
 {
     m_mvThread.quit();
@@ -146,6 +206,9 @@ Recognition::~Recognition()
 
     m_cvThread.quit();
     m_cvThread.wait();
+
+    m_OcrClientThread.quit();
+    m_OcrClientThread.wait();
 
     delete ui;
 }

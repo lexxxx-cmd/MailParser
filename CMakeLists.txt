@@ -35,9 +35,9 @@ message(STATUS "CUDA include: ${CUDAToolkit_INCLUDE_DIRS}")
 message(STATUS "CUDA libraries: ${CUDAToolkit_LIBRARY_DIR}")
 
 set(UI_SOURCES
-    UI/mainwindow.cpp
-    UI/mainwindow.h
-    UI/mainwindow.ui
+    # UI/mainwindow.cpp
+    # UI/mainwindow.h
+    # UI/mainwindow.ui
     UI/preview.cpp
     UI/preview.h
     UI/preview.ui
@@ -111,6 +111,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Core/mvgigecamera.cpp
         Core/opencvcamera.h
         Core/opencvcamera.cpp
+        Core/iocrservice.hpp
 
 
 

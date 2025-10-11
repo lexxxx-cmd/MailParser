@@ -8,7 +8,7 @@
 #include <QFile>
 
 
-OcrClient::OcrClient() {
+OcrClient::OcrClient(QObject *parent) : IOcrService(parent) {
     format = 0;
 
     manager = new QNetworkAccessManager(this);
@@ -17,12 +17,13 @@ OcrClient::OcrClient() {
 }
 OcrClient::~OcrClient() {
     delete manager;
+    manager = nullptr;
 }
 
 
-void OcrClient::sendOCRRequest(const cv::Mat& image) {
-    // cv::Mat images = cv::imread("./demo.jpg");
-    QImage img = Converter::cvMatToQImage(image);
+void OcrClient::sendOCRRequest(const QImage& image) {
+    cv::Mat images = cv::imread("./demo.jpg");
+    QImage img = Converter::cvMatToQImage(images);
 
     QByteArray imagedata;
     QBuffer buffer(&imagedata);
@@ -67,17 +68,7 @@ void OcrClient::sendOCRRequest(const cv::Mat& image) {
                     }
                     emit ocrResReady(text);
                     qDebug() << "识别结果:" << text;
-                    /*
-                    QString imgData = res.toObject()["ocrImage"].toString();
-                    QByteArray decoded = QByteArray::fromBase64(imgData.toLatin1());
-                    format++;
-                    QString m = "E:/Qt/repos/MailParser/ocrRes/result" + QString::number(format) + ".jpg";
-                    QFile output(m);
-                    if(output.open(QIODevice::WriteOnly)) {
-                        output.write(decoded);
-                        output.close();
-                    }
-                    */
+
                 }
             } else {
                 emit errorOccur("状态码非200，客户端链接失败!");
