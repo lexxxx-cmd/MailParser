@@ -308,4 +308,20 @@ struct PreParam {
     float width  = 0;
 };
 }  // namespace det
+
+class RecognitionResult {
+private:
+    std::chrono::system_clock::time_point timestamp_;
+public:
+    void setTimeStamp(const std::chrono::system_clock::time_point timestamp) {
+        timestamp_ = timestamp;
+    }
+    // 转换为UTC Unix时间戳（毫秒）
+    int64_t getTimeStamp() const {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(
+                   timestamp_.time_since_epoch()
+                   ).count();
+    }
+};
+
 #endif // COMMON_HPP

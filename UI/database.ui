@@ -168,48 +168,13 @@
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QTableWidget" name="tblMailData">
+          <widget class="QTableView" name="tblMailData">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <column>
-            <property name="text">
-             <string>时间</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>邮政编码</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>条码</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>收件地址</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>收件人</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>评分</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>等级</string>
-            </property>
-           </column>
           </widget>
          </item>
         </layout>

@@ -1,12 +1,37 @@
 #include "control.h"
 #include "ui_control.h"
+#include <QFileDialog>
+#include <QDir> // 为了使用 QDir::homePath()
+#include <QMessageBox>
 
 Control::Control(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Control)
 {
     ui->setupUi(this);
+    //保存路径信号
+    connect(ui->btnSelectSaveDir, &QPushButton::clicked, this, [=](){
+        // 弹出对话框，让用户选择目录
+        QString dirPath = QFileDialog::getExistingDirectory(
+            this,                                 // 父窗口
+            tr("选择保存目录"),                    // 对话框标题
+            QDir::homePath(),                     // 默认打开的目录
+            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+            );
 
+        // 如果用户选择了目录（而不是取消），则路径不为空
+        if (!dirPath.isEmpty()) {
+            ui->lblSaveDirPath->setText(dirPath);
+            emit imgSaveDirSet(dirPath);
+        }else {
+            QMessageBox msg;
+            msg.setIcon(QMessageBox::Warning);
+            msg.setText("必须选择裁剪图片保存目录！！！");
+            msg.addButton(QMessageBox::Ok);
+            msg.exec();
+        }
+
+    });
     //开启摄像头信号
     connect(ui->btnStartCamera, &QPushButton::clicked, this, &Control::captureRequested);
     //关闭摄像头信号

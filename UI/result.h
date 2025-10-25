@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <qlabel.h>
+#include "common.hpp"
 
 namespace Ui {
 class Result;
@@ -18,7 +19,10 @@ public:
 public slots:
     // 定义一个公共槽函数，用于接收并显示图片
     void updateImage(const QImage &image);
-    void onOcrshow(const QString& ocr);
+    //void onOcrshow(const QString& ocr);
+    void onOcrshow(const RecognitionResult& res);
+signals:
+    void requestInsertResult(const RecognitionResult& result);
 
 private:
     Ui::Result *ui;

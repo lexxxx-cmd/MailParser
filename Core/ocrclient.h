@@ -18,6 +18,7 @@ public slots:
 
 private:
     void handleResponse();
+    QJsonObject extractInfoFromTexts(const QJsonArray& rec_texts);
 
     QNetworkAccessManager *manager = nullptr;
     QNetworkRequest request;

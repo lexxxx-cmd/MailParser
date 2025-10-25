@@ -13,6 +13,8 @@ Recognition::Recognition(QWidget *parent)
     m_switchTimer->setInterval(100); // 100ms防抖动
     initializeCameras(); // 初始化相机池
     initializeOcrs();// 初始化ocr
+    //连接保存目录的按钮信号
+
     // 连接UI面板的切换信号
     //connect(ui->rightConfigPanelWidget, &Control::changeCamRequested, this, &Recognition::onSwitchCamera);
     //ROI

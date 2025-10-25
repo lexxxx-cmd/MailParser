@@ -2,6 +2,7 @@
 #define TABWIDGET_H
 
 #include <QWidget>
+#include "../Core/databasemanager.h"
 
 namespace Ui {
 class TabWidget;

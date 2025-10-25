@@ -56,7 +56,7 @@ void Preview::updateImage(const QImage &image)
         qDebug() << "Received a null image.";
         return;
     }
-    qDebug() << "DisplayWidget received image, updating UI.";
+    // qDebug() << "DisplayWidget received image, updating UI.";
     // 将QImage转换为QPixmap并显示在QLabel上
     setScaledPixmap(ui->camView,QPixmap::fromImage(image));
 }

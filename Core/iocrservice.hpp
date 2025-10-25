@@ -2,6 +2,7 @@
 #define IOCRSERVICE_HPP
 
 #include <QObject>
+#include "common.hpp"
 #include <opencv2/opencv.hpp>
 class IOcrService : public QObject
 {
@@ -13,7 +14,9 @@ public slots:
     virtual void sendOCRRequest(const QImage& image) = 0;
 
 signals:
-    void ocrResReady(const QString& ocr);
+    //void ocrResReady(const QString& ocr);
+    void ocrResReady(const RecognitionResult& res);
+    //void ocrResReady2(const QJsonObject& ocrResult, const QString& imagePath);
     void errorOccur(const QString& error);
 
 private:

@@ -19,6 +19,7 @@ public slots:
     void setROI(const QRectF& roi);
 
 signals:
+    void imgSaveDirSet(const QString& dirPath);
     void captureRequested();
     void camStopRequested();
     void DragROIRequested(bool checked);

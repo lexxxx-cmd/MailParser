@@ -14,6 +14,8 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 # 加网络
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Network)
+find_package(Qt6 REQUIRED COMPONENTS Sql)
+
 
 # Set paths (configurable from command line)
 set(OpenCV_DIR "${CMAKE_SOURCE_DIR}/Thridparty/OpenCV/opencv/build" CACHE PATH "OpenCV installation directory")
@@ -91,6 +93,8 @@ qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 # Main executable
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
     qt_add_executable(MailParser
         MANUAL_FINALIZATION
@@ -112,6 +116,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Core/opencvcamera.h
         Core/opencvcamera.cpp
         Core/iocrservice.hpp
+        Core/databaseworker.h Core/databaseworker.cpp
+        Core/databasemanager.h Core/databasemanager.cpp
 
 
 
@@ -151,6 +157,8 @@ target_link_libraries(MailParser PRIVATE
 #    myplugins
 )
 target_link_libraries(MailParser PRIVATE Qt6::Core Qt6::Network)
+target_link_libraries(MailParser PRIVATE Qt6::Core Qt6::Sql)
+target_link_libraries(MailParser PRIVATE Qt6::Core)
 
 # Link directories
 target_link_directories(MailParser PRIVATE

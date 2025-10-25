@@ -2,7 +2,7 @@
 #define DATABASE_H
 
 #include <QWidget>
-
+#include <QSqlTableModel>
 namespace Ui {
 class Database;
 }
@@ -17,6 +17,8 @@ public:
 
 private:
     Ui::Database *ui;
+    QSqlTableModel *m_model;
+
 };
 
 #endif // DATABASE_H

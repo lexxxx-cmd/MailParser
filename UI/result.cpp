@@ -1,11 +1,17 @@
 #include "result.h"
 #include "ui_result.h"
+#include <QString>
+#include "../Core/databasemanager.h"
 
 Result::Result(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Result)
 {
     ui->setupUi(this);
+    DatabaseManager* dbManager = DatabaseManager::instance();
+
+    connect(this,&Result::requestInsertResult, dbManager, &DatabaseManager::insertResult);
+
 }
 
 Result::~Result()
@@ -44,7 +50,13 @@ void Result::updateImage(const QImage &image)
     setScaledPixmap(ui->lblRecognitionImageView,QPixmap::fromImage(image));
 }
 
-void Result::onOcrshow(const QString& ocr)
+// void Result::onOcrshow(const QString& ocr)
+// {
+//     ui->lblRecognitionResultText->append(ocr);
+// }
+
+void Result::onOcrshow(const RecognitionResult& res)
 {
-    ui->lblRecognitionResultText->append(ocr);
+    ui->lblRecognitionResultText->append(QString::number(res.getTimeStamp()));
+    emit requestInsertResult(res);
 }
