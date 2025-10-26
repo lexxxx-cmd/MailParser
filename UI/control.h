@@ -1,6 +1,7 @@
 #ifndef CONTROL_H
 #define CONTROL_H
 
+#include "icameraservice.hpp"
 #include <QWidget>
 
 namespace Ui {
@@ -20,7 +21,7 @@ public slots:
 
 signals:
     void imgSaveDirSet(const QString& dirPath);
-    void captureRequested();
+    void captureRequested(CameraType& camType);
     void camStopRequested();
     void DragROIRequested(bool checked);
     void ApplyROIRequested(const QRectF& roi);

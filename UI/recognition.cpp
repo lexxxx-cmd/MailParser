@@ -11,12 +11,16 @@ Recognition::Recognition(QWidget *parent)
     ui->setupUi(this);
     m_switchTimer->setSingleShot(true);
     m_switchTimer->setInterval(100); // 100ms防抖动
-    initializeCameras(); // 初始化相机池
+
+    connect(ui->rightConfigPanelWidget, &Control::captureRequested,this, [=](CameraType curCamera){
+        initializeCameras(curCamera);
+        m_currentCamera->startGrabbing();
+    });
+    connect(ui->rightConfigPanelWidget, &Control::camStopRequested,this, [=](){
+        stopCurrentCamera();
+    });
     initializeOcrs();// 初始化ocr
     //连接保存目录的按钮信号
-
-    // 连接UI面板的切换信号
-    //connect(ui->rightConfigPanelWidget, &Control::changeCamRequested, this, &Recognition::onSwitchCamera);
     //ROI
     QObject::connect(ui->rightConfigPanelWidget,&Control::DragROIRequested,ui->leftPanelWidget,&Preview::setRoiSelectionEnabled);
     QObject::connect(ui->leftPanelWidget, &Preview::roiSelected,ui->rightConfigPanelWidget,&Control::setROI);
@@ -29,54 +33,34 @@ void Recognition::onErrorShow(const QString& error)
     if (t_Re == QMessageBox::Yes) return;
 }
 
-void Recognition::initializeCameras()
+void Recognition::initializeCameras(CameraType curCamera)
 {
     qInfo() << "Initializing cameras...";
-
+    if(curCamera == CameraType::MvGigeCamera) {
+        m_currentCamera = new MVGigECamera();
+    }else {
+        m_currentCamera = new OpenCVCamera();
+    }
     // 初始化MVGigE相机
-    // try {
-    //     mvCam = new MVGigECamera();
-    //     if (mvCam) {
-    //         mvCam->moveToThread(&m_mvThread);
-    //         QObject::connect(&m_mvThread, &QThread::finished,
-    //                 mvCam, &QObject::deleteLater);
-    //         m_mvThread.start();
-    //         qInfo() << "MVGigE Camera initialized successfully";
-
-    //         connectCameraSignals(mvCam);
-    //     } else {
-    //         delete mvCam;
-    //         mvCam = nullptr;
-    //         qWarning() << "MVGigE Camera initialization failed";
-    //     }
-    // } catch (const std::exception& e) {
-    //     qCritical() << "MVGigE Camera initialization exception:" << e.what();
-    //     if (mvCam) {
-    //         delete mvCam;
-    //         mvCam = nullptr;
-    //     }
-    // }
-
     try {
-        cvCam = new OpenCVCamera();
-        if (cvCam) {
-            cvCam->moveToThread(&m_cvThread);
-            QObject::connect(&m_cvThread, &QThread::finished,
-                             cvCam, &QObject::deleteLater);
-            m_cvThread.start();
-            qInfo() << "opencv Camera initialized successfully";
+        if (m_currentCamera) {
+            m_currentCamera->moveToThread(&m_camThread);
+            QObject::connect(&m_camThread, &QThread::finished,
+                    m_currentCamera, &QObject::deleteLater);
+            m_camThread.start();
+            qInfo() << (int)curCamera << " Camera initialized successfully";
 
-            connectCameraSignals(cvCam);
+            connectCameraSignals(m_currentCamera);
         } else {
-            delete cvCam;
-            cvCam = nullptr;
-            qWarning() << "opencv Camera initialization failed";
+            delete m_currentCamera;
+            m_currentCamera = nullptr;
+            qWarning() << (int)curCamera << "Camera initialization failed";
         }
     } catch (const std::exception& e) {
-        qCritical() << "opencv Camera initialization exception:" << e.what();
-        if (cvCam) {
-            delete cvCam;
-            cvCam = nullptr;
+        qCritical() << (int)curCamera << "Camera initialization exception:" << e.what();
+        if (m_currentCamera) {
+            delete m_currentCamera;
+            m_currentCamera = nullptr;
         }
     }
 }
@@ -125,7 +109,7 @@ void Recognition::stopCurrentCamera()
 
         // 关闭相机
         if (m_currentCamera->getState() != CameraState::Idle) {
-            QMetaObject::invokeMethod(m_currentCamera, "close",
+            QMetaObject::invokeMethod(m_currentCamera, "release",
                                       Qt::QueuedConnection);
         }
 
@@ -150,11 +134,6 @@ void Recognition::connectCameraSignals(ICameraService* camera)
     // 连接状态变化信号
 
     // 连接控制信号
-    connect(ui->rightConfigPanelWidget, &Control::captureRequested,
-            camera,&ICameraService::startGrabbing);
-
-    connect(ui->rightConfigPanelWidget, &Control::camStopRequested,
-            camera, &ICameraService::stopGrabbing);
 
     connect(ui->rightConfigPanelWidget,&Control::ApplyROIRequested,camera,&ICameraService::setROI);
 
@@ -203,11 +182,8 @@ void Recognition::disconnectOcrSignals(IOcrService* ocr)
 
 Recognition::~Recognition()
 {
-    m_mvThread.quit();
-    m_mvThread.wait();
-
-    m_cvThread.quit();
-    m_cvThread.wait();
+    m_camThread.quit();
+    m_camThread.wait();
 
     m_OcrClientThread.quit();
     m_OcrClientThread.wait();

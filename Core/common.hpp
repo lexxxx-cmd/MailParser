@@ -7,6 +7,7 @@
 #include "opencv2/opencv.hpp"
 #include <qimage.h>
 #include <regex>
+#include <QJsonObject>
 
 #define CHECK(call)                                                                                                    \
 do {                                                                                                               \
@@ -311,17 +312,172 @@ struct PreParam {
 
 class RecognitionResult {
 private:
-    std::chrono::system_clock::time_point timestamp_;
+    std::chrono::system_clock::time_point _timestamp;
+    QString _text, _zipcode, _barcode, _address, _receiver, _grade;
+    double _score;
 public:
     void setTimeStamp(const std::chrono::system_clock::time_point timestamp) {
-        timestamp_ = timestamp;
+        _timestamp = timestamp;
     }
+
     // 转换为UTC Unix时间戳（毫秒）
     int64_t getTimeStamp() const {
         return std::chrono::duration_cast<std::chrono::milliseconds>(
-                   timestamp_.time_since_epoch()
+                   _timestamp.time_since_epoch()
                    ).count();
+    }
+
+    void setText(const QString& text) {
+        _text = text;
+    }
+
+    QString getText() const {
+        return _text;
+    }
+
+    void setZipCode(const QString& zipcode) {
+        _zipcode = zipcode;
+    }
+
+    QString getZipCode() const {
+        return _zipcode;
+    }
+
+    void setBarCode(const QString& barcode) {
+        _barcode = barcode;
+    }
+
+    QString getBarCode() const {
+        return _barcode;
+    }
+
+    void setAddress(const QString& address) {
+        _address = address;
+    }
+
+    QString getAddress() const {
+        return _address;
+    }
+
+    void setReceiver(const QString& receiver) {
+        _receiver = receiver;
+    }
+
+    QString getReceiver() const {
+        return _receiver;
+    }
+
+    void setScore(const double& score) {
+        _score = score;
+    }
+
+    double getScore() const {
+        return _score;
+    }
+
+    void setGrade(const QString& grade) {
+        _grade = grade;
+    }
+
+    QString getGrade() const {
+        return _grade;
     }
 };
 
+
+class InfoComplete {
+
+    // InfoExtractor() = default;
+
+private:
+    static QString get_grade(double score) {
+        if (score >= 4.0) return "优秀";
+        if (score >= 3.0) return "良好";
+        if (score >= 2.0) return "及格";
+        return "不及格";
+    }
+public:
+    /**
+     * @brief 模拟Python的 evaluate_ocr_result
+     * (已更新为 Python 示例中的真实评分逻辑)
+     * @param result 包含已提取信息的 QJsonObject
+     * @param image_info 图像信息
+     * @return 评估结果 QJsonObject
+     */
+    static void evaluate_ocr_result(RecognitionResult& result) {
+        // (void)image_info; // Python 示例中未使用 image_info
+
+        double score;
+
+        // 关键转换点：对应 Python 的 @catch_exceptions 装饰器
+        try {
+            // --- 对应 InfoComplete.get_value() 的逻辑 ---
+            score = 4.0;
+
+            // 关键转换点：.toString() 会将 QJsonValue::Null 转换为空 QString
+            // 这与 Python 的 (str(x) if x is not None else '') 逻辑等效
+            QString postcode = result.getZipCode();
+            QString barcode = result.getBarCode();
+            QString receiver = result.getReceiver();
+            QString address = result.getAddress();
+
+            // 检查邮编
+            if (postcode.length() != 6) {
+                score -= 1.0;
+            }
+
+            // 检查条码
+            if (barcode.isEmpty()) {
+                score -= 1.0;
+            }
+
+            // 检查收件人
+            if (receiver.isEmpty()) {
+                score -= 1.0;
+            } else if (receiver.length() >= 5) {
+                score -= 0.5;
+            }
+
+            // 检查地址
+            if (address.isEmpty()) {
+                score -= 1.0;
+            }
+
+        } catch (const std::exception& e) {
+            qWarning() << "Scoring system error: " << e.what();
+            score = 0.0; // 发生异常时返回默认分数
+        } catch (...) {
+            qWarning() << "Unknown scoring system error.";
+            score = 0.0;
+        }
+
+        // --- 组装返回的 QJsonObject ---
+
+        // 获取等级
+        QString grade = get_grade(score);
+
+        result.setScore(score);
+        result.setGrade(grade);
+    }
+
+    /**
+     * @brief 将 RecognitionResult (中间状态) 转换为 QJsonObject
+     * 用于传递给 evaluate_ocr_result
+     */
+    // QJsonObject result_to_json(const RecognitionResult& result) {
+    //     QJsonObject obj;
+    //     obj["timestamp"] = result.timestamp;
+    //     obj["zip_code"] = result.zip_code;
+    //     obj["barcode"] = result.barcode;
+    //     obj["address"] = result.address;
+    //     obj["receiver"] = result.receiver;
+
+    //     QJsonArray rawTextsArray;
+    //     for(const QString& s : result.raw_texts) {
+    //         rawTextsArray.append(s);
+    //     }
+    //     obj["raw_texts"] = rawTextsArray;
+    //     return obj;
+    // }
+};
 #endif // COMMON_HPP

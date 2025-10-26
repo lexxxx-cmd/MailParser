@@ -110,7 +110,13 @@ void DatabaseManager::initDatabase()
         const QString createTableSql = R"(
             CREATE TABLE recognition_results (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT NOT NULL
+                timestamp TEXT NOT NULL,
+                raw_texts TEXT,
+                zip_code TEXT,
+                barcode TEXT,
+                address TEXT,
+                receiver TEXT,
+                grade TEXT
             );
         )";
 

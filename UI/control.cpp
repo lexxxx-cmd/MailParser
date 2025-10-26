@@ -33,7 +33,10 @@ Control::Control(QWidget *parent)
 
     });
     //开启摄像头信号
-    connect(ui->btnStartCamera, &QPushButton::clicked, this, &Control::captureRequested);
+    connect(ui->btnStartCamera, &QPushButton::clicked, this, [=](){
+        CameraType curCamera = ui->rbCameraMvGige->isChecked() ? CameraType::MvGigeCamera : CameraType::OpenCvCamera;
+        emit captureRequested(curCamera);
+    });
     //关闭摄像头信号
     connect(ui->btnStopCamera, &QPushButton::clicked, this, &Control::camStopRequested);
     //获取并检测信号

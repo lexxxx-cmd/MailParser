@@ -22,14 +22,14 @@ OcrClient::~OcrClient() {
 
 
 void OcrClient::sendOCRRequest(const QImage& image) {
-    cv::Mat images = cv::imread("./demo.jpg");
-    QImage img = Converter::cvMatToQImage(images);
+    // cv::Mat images = cv::imread("./demo.jpg");
+    // QImage img = Converter::cvMatToQImage(images);
 
     QByteArray imagedata;
     QBuffer buffer(&imagedata);
     buffer.open(QIODevice::WriteOnly);
 
-    img.save(&buffer,"JPEG",85);
+    image.save(&buffer,"JPEG",100);
     QString imagebase64 = imagedata.toBase64();
 
     // 构造JSON请求
@@ -71,6 +71,12 @@ void OcrClient::sendOCRRequest(const QImage& image) {
 
                     RecognitionResult tmp;
                     tmp.setTimeStamp(std::chrono::system_clock::now());
+                    tmp.setText(text);
+                    tmp.setZipCode(resultJson["zip_code"].toString());
+                    tmp.setBarCode(resultJson["barcode"].toString());
+                    tmp.setAddress(resultJson["address"].toString());
+                    tmp.setReceiver(resultJson["receiver"].toString());
+                    InfoComplete::evaluate_ocr_result(tmp);
                     // emit ocrResReady(text);
                     emit ocrResReady(tmp);
                     qDebug() << "识别结果:" << text;

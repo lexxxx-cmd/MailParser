@@ -67,20 +67,20 @@ void DatabaseWorker::doInsertResult(const RecognitionResult& result) {
     // )");
     query.prepare(R"(
         INSERT INTO recognition_results (
-            timestamp
-        ) VALUES (?)
+            timestamp, raw_texts, zip_code, barcode, address, receiver, grade
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
     )");
 
     query.addBindValue(result.getTimeStamp());
-    // query.addBindValue(result.zip_code);
-    // query.addBindValue(result.barcode);
-    // query.addBindValue(result.address);
-    // query.addBindValue(result.receiver);
-    // query.addBindValue(QJsonDocument(result.raw_texts).toJson(QJsonDocument::Compact));
+    query.addBindValue(result.getText());
+    query.addBindValue(result.getZipCode());
+    query.addBindValue(result.getBarCode());
+    query.addBindValue(result.getAddress());
+    query.addBindValue(result.getReceiver());
     // query.addBindValue(result.image_path);
     // query.addBindValue(result.thumbnail_path);
-    // query.addBindValue(result.score);
-    // query.addBindValue(result.grade);
+    // query.addBindValue(result.getScore());
+    query.addBindValue(result.getGrade());
 
     if (!query.exec()) {
         emit operationFailed("插入数据失败: " + query.lastError().text());

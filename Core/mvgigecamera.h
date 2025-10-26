@@ -18,7 +18,7 @@ class MVGigECamera : public ICameraService
 public:
     explicit MVGigECamera(int cameraIndex = 0, QObject *parent = nullptr);
     ~MVGigECamera() override;
-
+public slots:
     // --- 实现ICameraService的接口 ---
     bool initialize() override;
     void release() override;
@@ -29,7 +29,7 @@ public:
 
     // MV特有功能
     void showPropertyDialog();
-    bool setTriggerMode(bool enable);
+    // bool setTriggerMode(bool enable);
     int convert2QImage(MV_IMAGE_INFO* pInfo);
 
 private:

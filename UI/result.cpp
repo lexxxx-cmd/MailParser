@@ -58,5 +58,6 @@ void Result::updateImage(const QImage &image)
 void Result::onOcrshow(const RecognitionResult& res)
 {
     ui->lblRecognitionResultText->append(QString::number(res.getTimeStamp()));
+    ui->lblRecognitionResultText->append(res.getText());
     emit requestInsertResult(res);
 }

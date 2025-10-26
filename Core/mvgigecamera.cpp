@@ -1,10 +1,15 @@
 #include "mvgigecamera.h"
-
+#include <QThread>
 
 MVGigECamera::MVGigECamera(int cameraIndex, QObject *parent)
     : ICameraService{parent},m_nCam(cameraIndex),m_hCam(NULL),m_hPropDlg(NULL),m_hImg(NULL)
 {
+    m_cameraIndex = cameraIndex;
     m_type = CameraType::MvGigeCamera;
+    m_state = CameraState::Uninitialized;
+    initialize();
+    qDebug() << "MvGigeCamera - 索引:" << m_cameraIndex
+             << "线程:" << QThread::currentThreadId();
 }
 
 MVGigECamera::~MVGigECamera()
@@ -72,6 +77,7 @@ void MVGigECamera::release() {
         m_hCam = nullptr;
     }
     MVTerminateLib();
+    qInfo() << "mv相机资源释放！！";
     setState(CameraState::Uninitialized);
 }
 
