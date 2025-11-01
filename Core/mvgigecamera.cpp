@@ -139,7 +139,7 @@ bool MVGigECamera::grabOnce()
     return false;
 }
 
-bool MVGigECamera::saveImage(const QString& filepath)
+bool MVGigECamera::saveImage()
 {
 
     if (m_hImg == nullptr) {
@@ -162,7 +162,7 @@ bool MVGigECamera::saveImage(const QString& filepath)
         MVImageGetPitch(tempImg) * MVImageGetHeight(tempImg)
         );
     try{
-        MVImageSave(tempImg, filepath.toStdString().c_str());
+        MVImageSave(tempImg, m_filepath.toStdString().c_str());
     }catch(std::exception &e){
         emit errorOccur(e.what());
         return false;

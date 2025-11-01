@@ -4,6 +4,7 @@
 #include <QImage>
 #include <QMutex>
 #include <qdebug.h>
+#include <QDateTime>
 
 // 我们将使用class而不是struct，因为它有方法。
 // 并且为了在智能指针中使用，我们进行前向声明。
@@ -39,7 +40,7 @@ public:
     virtual bool startGrabbing() = 0;
     virtual bool stopGrabbing() = 0;
     virtual bool grabOnce() = 0;
-    virtual bool saveImage(const QString& filepath) = 0;
+    virtual bool saveImage() = 0;
 
 
     // --- 纯虚函数：定义标准相机状态查询接口 ---
@@ -48,6 +49,9 @@ public:
     CameraType getType() const { return m_type; }
     bool isGrabbing() const { return m_state == CameraState::Grabbing; }
 public slots:
+    void setImgSaveDir(QString filepath) {
+        m_filepath = filepath;
+    }
     void setROI(const QRectF& roi) {
         ROI = roi;
     }
@@ -67,15 +71,18 @@ signals:
 
     void stateChanged(CameraState state);
 
-    void roiImageReady(const QImage &roiImage);
+    void roiImageReady(const QImage &roiImage, const QString &filepath);
 
 protected:
     int m_cameraIndex;
     CameraState m_state;
     CameraType m_type;
+    QString m_filepath;
     QImage m_lastImage; // 缓存最后一帧
 
     QRectF ROI{0.0,0.0,1.0,1.0};
+
+
 
     void setState(CameraState state) {
         if (m_state != state) {
@@ -120,9 +127,12 @@ protected:
             qWarning() << "Failed to copy ROI from image";
             return;
         }
-
+        //saveImage();
         // 发射信号
-        emit roiImageReady(roiImage);
+
+        QString filepath = m_filepath + "/" + QString::number(QDateTime::currentMSecsSinceEpoch()) +  ".jpg";
+        emit roiImageReady(roiImage, filepath);
+        roiImage.save(filepath);
     }
 };
 

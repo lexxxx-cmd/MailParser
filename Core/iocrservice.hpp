@@ -4,6 +4,12 @@
 #include <QObject>
 #include "common.hpp"
 #include <opencv2/opencv.hpp>
+
+enum class OcrType{
+    LocalOcr,
+    XydOcr
+};
+
 class IOcrService : public QObject
 {
     Q_OBJECT
@@ -11,7 +17,7 @@ public:
     explicit IOcrService(QObject* parent = nullptr) : QObject(parent) {};
     virtual ~IOcrService() = default;
 public slots:
-    virtual void sendOCRRequest(const QImage& image) = 0;
+    virtual void sendOCRRequest(const QImage& image, const QString &filepath) = 0;
 
 signals:
     //void ocrResReady(const QString& ocr);

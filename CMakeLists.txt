@@ -95,6 +95,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
     qt_add_executable(MailParser
         MANUAL_FINALIZATION
@@ -118,6 +119,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
         Core/iocrservice.hpp
         Core/databaseworker.h Core/databaseworker.cpp
         Core/databasemanager.h Core/databasemanager.cpp
+        Core/xydocrclient.h Core/xydocrclient.cpp
 
 
 
@@ -158,6 +160,7 @@ target_link_libraries(MailParser PRIVATE
 )
 target_link_libraries(MailParser PRIVATE Qt6::Core Qt6::Network)
 target_link_libraries(MailParser PRIVATE Qt6::Core Qt6::Sql)
+target_link_libraries(MailParser PRIVATE Qt6::Core)
 target_link_libraries(MailParser PRIVATE Qt6::Core)
 
 # Link directories

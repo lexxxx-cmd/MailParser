@@ -313,9 +313,17 @@ struct PreParam {
 class RecognitionResult {
 private:
     std::chrono::system_clock::time_point _timestamp;
-    QString _text, _zipcode, _barcode, _address, _receiver, _grade;
+    QString _text, _zipcode, _barcode, _address, _receiver, _grade, _imgpath;
     double _score;
 public:
+    void setImgPath(const QString& imgpath) {
+        _imgpath = imgpath;
+    }
+
+    QString getImgPath() const {
+        return _imgpath;
+    }
+
     void setTimeStamp(const std::chrono::system_clock::time_point timestamp) {
         _timestamp = timestamp;
     }

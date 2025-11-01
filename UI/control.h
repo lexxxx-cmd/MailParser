@@ -2,6 +2,7 @@
 #define CONTROL_H
 
 #include "icameraservice.hpp"
+#include "iocrservice.hpp"
 #include <QWidget>
 
 namespace Ui {
@@ -22,13 +23,16 @@ public slots:
 signals:
     void imgSaveDirSet(const QString& dirPath);
     void captureRequested(CameraType& camType);
+    void loadOcrRequested(OcrType& ocrType);
     void camStopRequested();
+    void ocrStopRequested();
     void DragROIRequested(bool checked);
     void ApplyROIRequested(const QRectF& roi);
     void ClearROIRequested();
     void ShowROIRequested();
 
     void changeCamRequested(int index);//TODO 改为枚举类
+    void changeOcrRequested(int index);//TODO 改为枚举类
 
 private:
     Ui::Control *ui;

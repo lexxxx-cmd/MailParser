@@ -1,5 +1,6 @@
 #include "recognition.h"
 #include "ui_recognition.h"
+#include "xydocrclient.h"
 
 #include <QMessageBox>
 
@@ -19,8 +20,14 @@ Recognition::Recognition(QWidget *parent)
     connect(ui->rightConfigPanelWidget, &Control::camStopRequested,this, [=](){
         stopCurrentCamera();
     });
-    initializeOcrs();// 初始化ocr
-    //连接保存目录的按钮信号
+
+    connect(ui->rightConfigPanelWidget, &Control::loadOcrRequested,this, [=](OcrType curOcr){
+        initializeOcrs(curOcr);
+    });
+    connect(ui->rightConfigPanelWidget, &Control::ocrStopRequested,this, [=](){
+        stopCurrentOcr();
+    });
+
     //ROI
     QObject::connect(ui->rightConfigPanelWidget,&Control::DragROIRequested,ui->leftPanelWidget,&Preview::setRoiSelectionEnabled);
     QObject::connect(ui->leftPanelWidget, &Preview::roiSelected,ui->rightConfigPanelWidget,&Control::setROI);
@@ -65,32 +72,65 @@ void Recognition::initializeCameras(CameraType curCamera)
     }
 }
 
-void Recognition::initializeOcrs()
+void Recognition::initializeOcrs(OcrType curOcr)
 {
     qInfo() << "Initializing ocrs...";
 
+    if (mp_OcrClient) {
+        qWarning() << "Existing OCR client found. Stopping it before initializing a new one.";
+        stopCurrentOcr();
+        // 注意：此时 mp_OcrClient 已经是 nullptr
+    }
     try {
-        mp_OcrClient = new OcrClient();
+        if(curOcr == OcrType::LocalOcr){
+            mp_OcrClient = new OcrClient();
+        }else {
+            mp_OcrClient = new xydOcrClient();
+        }
+
         if (mp_OcrClient) {
             mp_OcrClient->moveToThread(&m_OcrClientThread);
             QObject::connect(&m_OcrClientThread, &QThread::finished,
                              mp_OcrClient, &QObject::deleteLater);
             m_OcrClientThread.start();
-            qInfo() << "local ocr initialized successfully";
+            qInfo() << "ocr initialized successfully";
 
             connectOcrSignals(mp_OcrClient);
         } else {
             delete mp_OcrClient;
             mp_OcrClient = nullptr;
-            qWarning() << "local ocr initialization failed";
+            qWarning() << "ocr initialization failed";
         }
     } catch (const std::exception& e) {
-        qCritical() << "local ocr initialization exception:" << e.what();
+        qCritical() << "ocr initialization exception:" << e.what();
         if (mp_OcrClient) {
             delete mp_OcrClient;
             mp_OcrClient = nullptr;
         }
     }
+
+    // try {
+    //     mp_XydClient = new xydOcrClient();
+    //     if (mp_XydClient) {
+    //         mp_XydClient->moveToThread(&m_XydClientThread);
+    //         QObject::connect(&m_XydClientThread, &QThread::finished,
+    //                          mp_XydClient, &QObject::deleteLater);
+    //         m_XydClientThread.start();
+    //         qInfo() << "local ocr initialized successfully";
+
+    //         connectOcrSignals(mp_XydClient);
+    //     } else {
+    //         delete mp_XydClient;
+    //         mp_XydClient = nullptr;
+    //         qWarning() << "local ocr initialization failed";
+    //     }
+    // } catch (const std::exception& e) {
+    //     qCritical() << "local ocr initialization exception:" << e.what();
+    //     if (mp_XydClient) {
+    //         delete mp_XydClient;
+    //         mp_XydClient = nullptr;
+    //     }
+    // }
 }
 
 void Recognition::stopCurrentCamera()
@@ -117,9 +157,23 @@ void Recognition::stopCurrentCamera()
     }
 }
 
+void Recognition::stopCurrentOcr()
+{
+    if (mp_OcrClient) {
+        qDebug() << "Stopping current camera...";
+
+        // 断开信号连接
+        disconnectOcrSignals(mp_OcrClient);
+        mp_OcrClient->deleteLater();
+        mp_OcrClient = nullptr;
+    }
+}
+
 void Recognition::connectCameraSignals(ICameraService* camera)
 {
     if (!camera) return;
+    //连接保存目录的按钮信号
+    connect(ui->rightConfigPanelWidget,&Control::imgSaveDirSet,camera, &ICameraService::setImgSaveDir);
 
     // 连接图像信号
     connect(camera, &ICameraService::imageReady,
@@ -187,6 +241,9 @@ Recognition::~Recognition()
 
     m_OcrClientThread.quit();
     m_OcrClientThread.wait();
+
+    m_XydClientThread.quit();
+    m_XydClientThread.wait();
 
     delete ui;
 }

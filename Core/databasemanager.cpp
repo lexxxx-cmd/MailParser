@@ -116,7 +116,9 @@ void DatabaseManager::initDatabase()
                 barcode TEXT,
                 address TEXT,
                 receiver TEXT,
-                grade TEXT
+                score REAL,
+                grade TEXT,
+                img_path TEXT
             );
         )";
 

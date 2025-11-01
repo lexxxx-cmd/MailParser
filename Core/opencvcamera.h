@@ -29,7 +29,7 @@ public slots:
     bool startGrabbing() override;
     bool stopGrabbing() override;
     bool grabOnce() override;
-    bool saveImage(const QString& filepath) override;
+    bool saveImage() override;
 
 private:
     /**

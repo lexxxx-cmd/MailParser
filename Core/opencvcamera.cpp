@@ -185,7 +185,7 @@ bool OpenCVCamera::grabOnce()
     return true;
 }
 
-bool OpenCVCamera::saveImage(const QString& filepath)
+bool OpenCVCamera::saveImage()
 {
     qDebug() << "OpenCVCamera::saveImage - 线程:" << QThread::currentThreadId();
 
@@ -197,7 +197,7 @@ bool OpenCVCamera::saveImage(const QString& filepath)
     }
 
     // 确保目录存在
-    QFileInfo fileInfo(filepath);
+    QFileInfo fileInfo(m_filepath);
     QDir dir = fileInfo.absoluteDir();
     if (!dir.exists())
     {
@@ -209,14 +209,14 @@ bool OpenCVCamera::saveImage(const QString& filepath)
         }
     }
 
-    if (!m_lastImage.save(filepath))
+    if (!m_lastImage.save(m_filepath))
     {
-        qCritical() << "保存图像失败:" << filepath;
-        emit errorOccur(QString("保存图像失败: %1").arg(filepath));
+        qCritical() << "保存图像失败:" << m_filepath;
+        emit errorOccur(QString("保存图像失败: %1").arg(m_filepath));
         return false;
     }
 
-    qInfo() << "图像保存成功:" << filepath;
+    qInfo() << "图像保存成功:" << m_filepath;
     return true;
 }
 

@@ -14,14 +14,17 @@ OcrClient::OcrClient(QObject *parent) : IOcrService(parent) {
     manager = new QNetworkAccessManager(this);
     request.setUrl(QUrl("http://localhost:8080/ocr"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    qInfo() << "使用本地ocr";
 }
+
 OcrClient::~OcrClient() {
     delete manager;
     manager = nullptr;
 }
 
 
-void OcrClient::sendOCRRequest(const QImage& image) {
+void OcrClient::sendOCRRequest(const QImage& image, const QString &filepath) {
     // cv::Mat images = cv::imread("./demo.jpg");
     // QImage img = Converter::cvMatToQImage(images);
 
@@ -76,6 +79,7 @@ void OcrClient::sendOCRRequest(const QImage& image) {
                     tmp.setBarCode(resultJson["barcode"].toString());
                     tmp.setAddress(resultJson["address"].toString());
                     tmp.setReceiver(resultJson["receiver"].toString());
+                    tmp.setImgPath(filepath);
                     InfoComplete::evaluate_ocr_result(tmp);
                     // emit ocrResReady(text);
                     emit ocrResReady(tmp);
@@ -225,9 +229,9 @@ QJsonObject OcrClient::extractInfoFromTexts(const QJsonArray& rec_texts)
         }
     }
 
-    // if (!receiverLine.isEmpty()) {
-    //     result["receiver"] = cleanReceiverName(receiverLine);
-    // }
+    if (!receiverLine.isEmpty()) {
+        result["receiver"] = cleanReceiverName(receiverLine);
+    }
 
     // // 添加图像信息并进行评分
     // QJsonObject imageInfo;

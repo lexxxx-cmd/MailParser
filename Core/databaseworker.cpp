@@ -67,8 +67,8 @@ void DatabaseWorker::doInsertResult(const RecognitionResult& result) {
     // )");
     query.prepare(R"(
         INSERT INTO recognition_results (
-            timestamp, raw_texts, zip_code, barcode, address, receiver, grade
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            timestamp, raw_texts, zip_code, barcode, address, receiver, score, grade, img_path
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     )");
 
     query.addBindValue(result.getTimeStamp());
@@ -77,10 +77,11 @@ void DatabaseWorker::doInsertResult(const RecognitionResult& result) {
     query.addBindValue(result.getBarCode());
     query.addBindValue(result.getAddress());
     query.addBindValue(result.getReceiver());
-    // query.addBindValue(result.image_path);
+
     // query.addBindValue(result.thumbnail_path);
-    // query.addBindValue(result.getScore());
+    query.addBindValue(result.getScore());
     query.addBindValue(result.getGrade());
+    query.addBindValue(result.getImgPath());
 
     if (!query.exec()) {
         emit operationFailed("插入数据失败: " + query.lastError().text());

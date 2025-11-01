@@ -16,11 +16,12 @@ Control::Control(QWidget *parent)
             this,                                 // 父窗口
             tr("选择保存目录"),                    // 对话框标题
             QDir::homePath(),                     // 默认打开的目录
-            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks | QFileDialog::DontUseNativeDialog
             );
 
         // 如果用户选择了目录（而不是取消），则路径不为空
         if (!dirPath.isEmpty()) {
+            dirPath = QDir::fromNativeSeparators(dirPath);
             ui->lblSaveDirPath->setText(dirPath);
             emit imgSaveDirSet(dirPath);
         }else {
@@ -39,8 +40,25 @@ Control::Control(QWidget *parent)
     });
     //关闭摄像头信号
     connect(ui->btnStopCamera, &QPushButton::clicked, this, &Control::camStopRequested);
+
+    //开启ocr信号
+    connect(ui->btnLoadOcrEngine, &QPushButton::clicked, this, [=](){
+        ui->stackedWidget->setCurrentIndex(0);
+        OcrType curOcr = ui->rbOcrLocal->isChecked() ? OcrType::LocalOcr : OcrType::XydOcr;
+        emit loadOcrRequested(curOcr);
+    });
+    //关闭ocr信号
+    connect(ui->btnStopOcrEngine, &QPushButton::clicked, this, [=](){
+        ui->stackedWidget->setCurrentIndex(1);
+        emit ocrStopRequested();
+
+    });
+
     //获取并检测信号
-    connect(ui->btnDetectCurrentFrame, &QPushButton::clicked, this, &Control::ShowROIRequested);
+    connect(ui->btnDetectCurrentFrame, &QPushButton::clicked, this, [=](){
+        emit imgSaveDirSet(ui->lblSaveDirPath->text());
+        emit ShowROIRequested();
+    });
     //拖拽ROI信号
     connect(ui->chkEnableRoiDrag, &QCheckBox::toggled, this, &Control::DragROIRequested);
     //应用ROI信号
@@ -57,6 +75,18 @@ Control::Control(QWidget *parent)
     connect(ui->rbCameraOpencv, &QRadioButton::toggled, this, [=](){
         emit changeCamRequested(1);
     });
+
+    //切换本地ocr信号
+    connect(ui->rbOcrLocal, &QRadioButton::toggled, this, [=](){
+        emit changeOcrRequested(0);
+    });
+    //切换远端ocr信号
+    connect(ui->rbOcrRemote, &QRadioButton::toggled, this, [=](){
+        emit changeOcrRequested(1);
+    });
+
+    ui->stackedWidget->setCurrentIndex(1);
+
 }
 
 Control::~Control()

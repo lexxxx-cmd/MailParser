@@ -31,11 +31,11 @@ public:
     void onCameraStateChanged(CameraState state);
     ~Recognition();
 public slots:
-    void sendROIRequest(const QImage& ROIimg) {
-        emit sendOcrRequest(ROIimg);
+    void sendROIRequest(const QImage& ROIimg, const QString &filepath) {
+        emit sendOcrRequest(ROIimg, filepath);
     }
 signals:
-    void sendOcrRequest(const QImage& ROIimg);
+    void sendOcrRequest(const QImage& ROIimg, const QString &filepath);
 private:
     Ui::Recognition *ui;
     // 使用QMap来存储相机池，键是相机类型，值是相机服务实例
@@ -44,7 +44,8 @@ private:
     QTimer* m_switchTimer; // 防抖动
     QThread m_camThread;
 
-    OcrClient* mp_OcrClient = nullptr;
+    IOcrService* mp_OcrClient = nullptr;
+    IOcrService* mp_XydClient = nullptr;
     QThread m_OcrClientThread,m_XydClientThread;
 
 
@@ -52,9 +53,10 @@ private:
     void connectCameraSignals(ICameraService* camera);
     void disconnectCameraSignals(ICameraService* camera);
     void stopCurrentCamera();
+    void stopCurrentOcr();
     void cleanupResources();
 
-    void initializeOcrs(); // 新增一个私有函数用于初始化所有ocr
+    void initializeOcrs(OcrType curOcr); // 新增一个私有函数用于初始化所有ocr
     void connectOcrSignals(IOcrService* ocr);
     void disconnectOcrSignals(IOcrService* ocr);
 };

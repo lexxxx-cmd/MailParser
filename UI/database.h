@@ -14,6 +14,8 @@ class Database : public QWidget
 public:
     explicit Database(QWidget *parent = nullptr);
     ~Database();
+public slots:
+    void onRowClicked();
 
 private:
     Ui::Database *ui;
