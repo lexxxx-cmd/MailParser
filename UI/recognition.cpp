@@ -32,6 +32,9 @@ Recognition::Recognition(QWidget *parent)
     QObject::connect(ui->rightConfigPanelWidget,&Control::DragROIRequested,ui->leftPanelWidget,&Preview::setRoiSelectionEnabled);
     QObject::connect(ui->leftPanelWidget, &Preview::roiSelected,ui->rightConfigPanelWidget,&Control::setROI);
 
+    connect(ui->rightConfigPanelWidget, &Control::changeRemoteConfig, this, [=](RemoteConfig config){
+        m_config = config;
+    });
 }
 
 void Recognition::onErrorShow(const QString& error)
@@ -85,7 +88,7 @@ void Recognition::initializeOcrs(OcrType curOcr)
         if(curOcr == OcrType::LocalOcr){
             mp_OcrClient = new OcrClient();
         }else {
-            mp_OcrClient = new xydOcrClient();
+            mp_OcrClient = new xydOcrClient(nullptr, getRemoteConfig());
         }
 
         if (mp_OcrClient) {

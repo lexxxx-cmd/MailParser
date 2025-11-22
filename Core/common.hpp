@@ -310,6 +310,14 @@ struct PreParam {
 };
 }  // namespace det
 
+class RemoteConfig {
+public:
+    QString address = "";
+    QString key = "";
+    size_t barcodeLength = 0;
+    int analysisType = 1;
+};
+
 class RecognitionResult {
 private:
     std::chrono::system_clock::time_point _timestamp;

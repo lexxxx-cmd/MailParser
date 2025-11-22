@@ -6,18 +6,18 @@
 #include <QNetworkReply>
 #include <QJsonArray>
 
-xydOcrClient::xydOcrClient(QObject *parent)
+xydOcrClient::xydOcrClient(QObject *parent, RemoteConfig config)
     : IOcrService{parent}
 {
     format = 0;
 
     manager = new QNetworkAccessManager(this);
-    request.setUrl(QUrl("http://222.66.108.206:4000/xyd_server/OcrGeneralServlet"));
+    request.setUrl(QUrl("http://"+config.address+"/xyd_server/OcrGeneralServlet"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     m_systemname = "test";
-    privatekey = "11111";
+    privatekey = config.key;
     analysisType = 1;
-    m_barcode_len = 13;
+    m_barcode_len = config.barcodeLength;
     qInfo() << "使用远程ocr";
 
 }

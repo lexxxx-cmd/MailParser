@@ -3,6 +3,7 @@
 
 #include "icameraservice.hpp"
 #include "iocrservice.hpp"
+#include "../Core/common.hpp"
 #include <QWidget>
 
 namespace Ui {
@@ -33,10 +34,13 @@ signals:
 
     void changeCamRequested(int index);//TODO 改为枚举类
     void changeOcrRequested(int index);//TODO 改为枚举类
+    void changeRemoteConfig(RemoteConfig curConfig);
 
 private:
     Ui::Control *ui;
     QRectF getROI() const;
+
+    void getConfig(RemoteConfig& config);
 };
 
 #endif // CONTROL_H

@@ -13,7 +13,7 @@
 #include "../Core/opencvcamera.h"
 #include "../Core/iocrservice.hpp"
 #include "../Core/ocrclient.h"
-
+#include "../Core/common.hpp"
 
 namespace Ui {
 class Recognition;
@@ -43,10 +43,14 @@ private:
     ICameraService* m_currentCamera = nullptr;
     QTimer* m_switchTimer; // 防抖动
     QThread m_camThread;
+    RemoteConfig m_config;
 
     IOcrService* mp_OcrClient = nullptr;
     IOcrService* mp_XydClient = nullptr;
     QThread m_OcrClientThread,m_XydClientThread;
+    RemoteConfig getRemoteConfig() {
+        return m_config;
+    }
 
 
     void initializeCameras(CameraType curCamera); // 新增一个私有函数用于初始化所有相机

@@ -2,6 +2,7 @@
 #define XYDOCRCLIENT_H
 
 #include <QObject>
+#include "common.hpp"
 #include "iocrservice.hpp"
 #include <QNetworkAccessManager>
 
@@ -9,7 +10,7 @@ class xydOcrClient : public IOcrService
 {
     Q_OBJECT
 public:
-    explicit xydOcrClient(QObject *parent = nullptr);
+    explicit xydOcrClient(QObject *parent = nullptr, RemoteConfig config = RemoteConfig());
     ~xydOcrClient() override;
 public slots:
     void sendOCRRequest(const QImage& image, const QString &filepath) override;
